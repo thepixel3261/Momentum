@@ -15,7 +15,7 @@ gui:
     name: "&eCurrent Playtime"
     lore:
       - "&7You have been active for:"
-      - "&a%session_minutes% minutes"
+      - "&a%momentum_minutes% minutes"
   claim_all_item:
     name: "&bClaim All Rewards"
     lore:
