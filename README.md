@@ -1,4 +1,4 @@
-<h1 align="center">🧠 SessionPerks</h1>
+<h1 align="center">🧠 Momentum</h1>
 <p align="center">
   ⏳ Reward your players for being online — the longer they stay, the more they gain.
 </p>
