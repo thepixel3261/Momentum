@@ -1,0 +1,18 @@
+tiers:
+  tier1:
+    id: 1
+    unlockAfterMinutes: 30
+    actions:
+      - type: money
+        amount: 100
+      - type: xp
+        amount: 50
+      - type: command
+        command: "give %player% diamond 1"
+      - type: sound
+        sound: "ENTITY_PLAYER_LEVELUP"
+        volume: 1.0
+        pitch: 1.2
+      - type: particle
+        particle: "VILLAGER_HAPPY"
+        count: 10

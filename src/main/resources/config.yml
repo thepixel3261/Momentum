@@ -1,0 +1,40 @@
+afkTimeoutMinutes: 5
+claim:
+  allowClaimAll: true
+  allowIndividualClaim: true
+
+redis:
+  enabled: false
+  host: "localhost"
+  port: 6379
+  password: ""
+
+gui:
+  title: "Session Rewards"
+  playtime_item:
+    name: "&eCurrent Playtime"
+    lore:
+      - "&7You have been active for:"
+      - "&a%session_minutes% minutes"
+  claim_all_item:
+    name: "&bClaim All Rewards"
+    lore:
+      - "&7Click to claim all"
+      - "&7unlocked rewards!"
+  tier_item:
+    locked:
+      name: "&cTier %tier_id% (Locked)"
+      lore:
+        - "&7Unlock in: &e%time_left% minutes"
+        - "&7Rewards:"
+        - "%rewards%"
+    claimable:
+      name: "&aTier %tier_id% (Claimable)"
+      lore:
+        - "&7Click to claim your rewards!"
+        - "&7Rewards:"
+        - "%rewards%"
+    claimed:
+      name: "&9Tier %tier_id% (Claimed)"
+      lore:
+        - "&7You have already claimed this."

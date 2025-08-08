@@ -1,0 +1,25 @@
+name: Momentum
+main: de.thepixel3261.momentum.Main
+version: '1.0.0'
+api-version: '1.21'
+author: thepixel3261
+description: Track player sessions and unlock rewards over time.
+load: STARTUP
+
+softdepend:
+  - Vault
+  - PlaceholderAPI
+
+commands:
+  momentum:
+    description: Main command for the Momentum plugin.
+    aliases: [session, sessionperks]
+    permission: momentum.use
+
+permissions:
+  momentum.use:
+    description: Allows using the main Momentum command.
+    default: true
+  momentum.reload:
+    description: Allows reloading the Momentum configuration.
+    default: op
