@@ -1,3 +1,18 @@
+/*
+ * [Momentum] Rewards and More.
+ * Copyright (C) 2025 thepixel3261
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ * Additional terms (Section 7, AGPL‑3.0-or‑later):
+ * If you modify and run this plugin on a publicly accessible Minecraft server,
+ * you must publish the complete modified source via a public repository;
+ * providing source “on request” does NOT satisfy this requirement.
+ *
+ * See LICENSE (bottom) for full terms.
+ */
+
+
+
 package de.thepixel3261.momentum
 
 import de.thepixel3261.momentum.afk.AfkListener
@@ -11,6 +26,7 @@ import de.thepixel3261.momentum.reward.RewardManager
 import de.thepixel3261.momentum.session.SessionListener
 import de.thepixel3261.momentum.session.SessionManager
 import de.thepixel3261.momentum.util.PlaceholderUtil
+import de.thepixel3261.momentum.util.VersionUtil
 import net.milkbowl.vault.economy.Economy
 import org.bstats.bukkit.Metrics
 import org.bukkit.Bukkit
@@ -27,6 +43,7 @@ class Main : JavaPlugin() {
     lateinit var afkManager: AfkManager
     lateinit var redisManager: RedisManager
     lateinit var momentumMenu: MomentumMenu
+    lateinit var versionUtil: VersionUtil
 
     override fun onEnable() {
         // 1. Setup external dependencies
@@ -44,6 +61,7 @@ class Main : JavaPlugin() {
         configLoader = ConfigLoader(this, rewardManager)
         redisManager = RedisManager(this, configLoader)
         momentumMenu = MomentumMenu(this)
+        versionUtil = VersionUtil(this)
 
         // 3. Inject dependencies
         rewardManager.sessionManager = sessionManager
@@ -57,6 +75,7 @@ class Main : JavaPlugin() {
         server.pluginManager.registerEvents(SessionListener(sessionManager, redisManager), this)
         server.pluginManager.registerEvents(AfkListener(afkManager), this)
         server.pluginManager.registerEvents(GuiListener(this), this)
+        server.pluginManager.registerEvents(VersionUtil(this), this)
         getCommand("momentum")?.executor = MomentumCommand(this, rewardManager, momentumMenu)
 
         // 6. Start tasks
@@ -69,6 +88,13 @@ class Main : JavaPlugin() {
         }
 
         logger.info("Momentum plugin enabled.")
+
+        server.consoleSender.sendMessage("---§aMomentum§f---")
+        server.consoleSender.sendMessage("Version: §3${description.version}")
+        server.consoleSender.sendMessage("Author: §6thepixel3261")
+        if (versionUtil.getUpdateMessage() != null) {
+            server.consoleSender.sendMessage("${versionUtil.getUpdateMessage()}")
+        }
     }
 
     override fun onDisable() {
