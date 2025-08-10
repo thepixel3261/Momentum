@@ -18,13 +18,18 @@ import com.google.gson.Gson
 import de.thepixel3261.momentum.Main
 import de.thepixel3261.momentum.config.ConfigLoader
 import de.thepixel3261.momentum.session.SessionData
+import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
+import redis.clients.jedis.exceptions.JedisConnectionException
 import java.util.*
+import java.util.logging.Level
 
 class RedisManager(private val plugin: Main, private val configLoader: ConfigLoader) {
     var jedisPool: JedisPool? = null
     private val gson = Gson()
+    private val maxRetryAttempts = 3
+    private val retryDelayMs = 1000
 
     fun connect() {
         if (!configLoader.redisEnabled) {
@@ -47,77 +52,76 @@ class RedisManager(private val plugin: Main, private val configLoader: ConfigLoa
     }
 
     fun isLeaving(uuid: UUID): Boolean {
-        if (jedisPool == null) return false
-        try {
-            jedisPool!!.resource.use { jedis ->
-                return jedis.exists("momentum:leaving:$uuid")
-            }
-        } catch (e: Exception) {
-            plugin.logger.severe("Redis error: ${e.message}")
-            return false
-        }
+        return withRetry("isLeaving") { jedis ->
+            jedis.exists("momentum:leaving:$uuid")
+        } ?: false
     }
 
     fun setLeaving(data: SessionData) {
-        if (jedisPool == null) return
-        try {
-            jedisPool!!.resource.use { jedis ->
-                jedis.setex("momentum:leaving:${data.uuid}", 30, "true")
-            }
-        } catch (e: Exception) {
-            plugin.logger.severe("Redis error: ${e.message}")
+        withRetry("setLeaving") { jedis ->
+            jedis.setex("momentum:leaving:${data.uuid}", 30, "true")
         }
         saveSessionData(data)
     }
 
     fun clearLeaving(uuid: UUID) {
-        if (jedisPool == null) return
-        try {
-            jedisPool!!.resource.use { jedis ->
-                jedis.del("momentum:leaving:$uuid")
-            }
-        } catch (e: Exception) {
-            plugin.logger.severe("Redis error: ${e.message}")
+        withRetry("clearLeaving") { jedis ->
+            jedis.del("momentum:leaving:$uuid")
         }
     }
 
     private fun saveSessionData(session: SessionData) {
-        if (jedisPool == null) return
-        try {
+        withRetry("saveSessionData") { jedis ->
             val json = gson.toJson(session)
-            jedisPool!!.resource.use { jedis ->
-                jedis.setex("momentum:session:${session.uuid}", 30, json)
-            }
-        } catch (e: Exception) {
-            plugin.logger.severe("Failed to save session data: ${e.message}")
+            jedis.setex("momentum:session:${session.uuid}", 30, json)
         }
     }
 
     fun getSessionData(uuid: UUID): SessionData? {
-        if (jedisPool == null) return null
-        return try {
-            jedisPool!!.resource.use { jedis ->
-                val json = jedis.get("momentum:session:$uuid") ?: return null
-                gson.fromJson(json, SessionData::class.java)
-            }
-        } catch (e: Exception) {
-            plugin.logger.severe("Failed to load session data: ${e.message}")
-            null
+        return withRetry("getSessionData") { jedis ->
+            val json = jedis.get("momentum:session:$uuid")
+            gson.fromJson(json, SessionData::class.java)
         }
     }
 
     fun clearSessionData(uuid: UUID) {
-        if (jedisPool == null) return
-        try {
-            jedisPool!!.resource.use { jedis ->
-                jedis.del("momentum:session:$uuid")
-            }
-        } catch (e: Exception) {
-            plugin.logger.severe("Failed to clear session data: ${e.message}")
+        withRetry("clearSessionData") { jedis ->
+            jedis.del("momentum:session:$uuid")
         }
     }
 
     fun disconnect() {
-        jedisPool?.close()
+        withRetry("disconnect", Jedis::disconnect) ?: jedisPool?.close()
+    }
+
+    private fun <T> withRetry(operation: String, block: (Jedis) -> T): T? {
+
+        var lastException: Exception? = null
+        var result: T? = null
+
+        for (attempt in 1..maxRetryAttempts) {
+            try {
+                jedisPool!!.use { pool ->
+                    pool.resource.use { jedis ->
+                        result = block(jedis)
+                        return result
+                    }
+                }
+            } catch (e: JedisConnectionException) {
+                lastException = e
+                if (attempt < maxRetryAttempts) {
+                    plugin.logger.warning("Redis connection failed (attempt $attempt/$maxRetryAttempts). Retrying in ${retryDelayMs}ms...")
+                    Thread.sleep(retryDelayMs.toLong())
+                    connect()
+                }
+            } catch (e: Exception) {
+                plugin.logger.log(Level.SEVERE, "Redis operation '$operation' failed: ${e.message}", e)
+                return null
+            }
+        }
+
+        plugin.logger.severe("Failed to execute Redis operation '$operation' after $maxRetryAttempts attempts")
+        lastException?.let { plugin.logger.log(Level.SEVERE, "Last exception:", it) }
+        return null
     }
 }

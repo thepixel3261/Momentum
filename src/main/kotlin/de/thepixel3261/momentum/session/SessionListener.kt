@@ -11,7 +11,6 @@
  * See LICENSE (bottom) for full terms.
  */
 
-
 package de.thepixel3261.momentum.session
 
 import de.thepixel3261.momentum.redis.RedisManager
@@ -53,7 +52,7 @@ class SessionListener(
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {
         val player = event.player
-        if (redisManager.jedisPool != null) { // only set leaving if redis is enabled
+        if (redisManager.jedisPool != null) {
             redisManager.setLeaving(sessionManager.getSession(player)!!)
         }
         sessionManager.endSession(player)

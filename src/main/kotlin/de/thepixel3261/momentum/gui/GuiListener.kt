@@ -11,7 +11,6 @@
  * See LICENSE (bottom) for full terms.
  */
 
-
 package de.thepixel3261.momentum.gui
 
 import de.thepixel3261.momentum.Main

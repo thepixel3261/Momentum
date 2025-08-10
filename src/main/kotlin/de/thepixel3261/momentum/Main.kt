@@ -11,8 +11,6 @@
  * See LICENSE (bottom) for full terms.
  */
 
-
-
 package de.thepixel3261.momentum
 
 import de.thepixel3261.momentum.afk.AfkListener
@@ -25,10 +23,10 @@ import de.thepixel3261.momentum.redis.RedisManager
 import de.thepixel3261.momentum.reward.RewardManager
 import de.thepixel3261.momentum.session.SessionListener
 import de.thepixel3261.momentum.session.SessionManager
+import de.thepixel3261.momentum.util.bStats.BStatsUtil
 import de.thepixel3261.momentum.util.PlaceholderUtil
 import de.thepixel3261.momentum.util.VersionUtil
 import net.milkbowl.vault.economy.Economy
-import org.bstats.bukkit.Metrics
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -51,8 +49,8 @@ class Main : JavaPlugin() {
             logger.warning("Vault not found! Economy features will be disabled.")
         }
 
-        val bStatsId = 26832
-        Metrics(this, bStatsId)
+        // Set up bStats
+        BStatsUtil(this)
 
         // 2. Instantiate managers
         rewardManager = RewardManager(economy)

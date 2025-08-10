@@ -11,7 +11,6 @@
  * See LICENSE (bottom) for full terms.
  */
 
-
 package de.thepixel3261.momentum.util
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion

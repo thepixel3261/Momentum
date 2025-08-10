@@ -24,6 +24,11 @@ dependencies {
     implementation("org.bstats:bstats-bukkit:3.1.0")
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs = freeCompilerArgs + "-Xjvm-default=all"
+    }
+}
 
 tasks {
     shadowJar {
