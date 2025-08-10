@@ -12,7 +12,6 @@
  * See plugin.yml for full notice.
  */
 
-
 package de.thepixel3261.momentum.util
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
