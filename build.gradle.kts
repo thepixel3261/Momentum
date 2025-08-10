@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "de.thepixel3261"
-version = File("src/main/resources/plugin.yml").readText(Charsets.UTF_8).substringAfter("version: ").substringBefore("\n").replace("'", "")
+version = File("src/main/resources/plugin.yml").readText(Charsets.UTF_8).substringAfter("version: '").substringBefore("'")
 
 repositories {
     mavenCentral()

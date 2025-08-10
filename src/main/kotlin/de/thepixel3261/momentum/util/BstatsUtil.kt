@@ -13,16 +13,19 @@
  */
 
 
-package de.thepixel3261.momentum.reward
+package de.thepixel3261.momentum.util
 
-import org.bukkit.Material
+import de.thepixel3261.momentum.Main
+import org.bstats.bukkit.Metrics
+import org.bstats.charts.SimplePie
 
-data class RewardTier(
-    val name: String,
-    val id: Int,
-    val unlockAfterMinutes: Int,
-    val actions: List<RewardAction>,
-    val materialLocked: Material,
-    val materialUnlocked: Material,
-    val materialClaimed: Material
-)
+class BstatsUtil(val plugin: Main) {
+    private val bStatsId = 26832
+    val metrics = Metrics(plugin, bStatsId)
+
+    init {
+        metrics.addCustomChart(SimplePie("redis_use") {
+            return@SimplePie plugin.configLoader.redisEnabled.toString()
+        })
+    }
+}

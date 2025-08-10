@@ -8,7 +8,8 @@
  * you must publish the complete modified source via a public repository;
  * providing source “on request” does NOT satisfy this requirement.
  *
- * See LICENSE (bottom) for full terms.
+ * See LICENSE (bottom) for full additional terms.
+ * See plugin.yml for full notice.
  */
 
 
@@ -18,6 +19,7 @@ import de.thepixel3261.momentum.Main
 import de.thepixel3261.momentum.reward.RewardAction
 import de.thepixel3261.momentum.reward.RewardManager
 import de.thepixel3261.momentum.reward.RewardTier
+import org.bukkit.Material
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
@@ -83,32 +85,42 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
         rewardManager.tiers.clear()
         val tiersSection = rewardsConfig.getConfigurationSection("tiers") ?: return
 
-        for (key in tiersSection.getKeys(false)) {
-            val tierSection = tiersSection.getConfigurationSection(key) ?: continue
+        for (tierName in tiersSection.getKeys(false)) {
+            val tierSection = tiersSection.getConfigurationSection(tierName) ?: continue
             val id = tierSection.getInt("id")
             val unlockAfterMinutes = tierSection.getInt("unlockAfterMinutes")
             val actionsList = tierSection.getMapList("actions")
+            val materialLocked = Material.valueOf(tierSection.getString("materialLocked", "GRAY_DYE").uppercase())
+            val materialUnlocked = Material.valueOf(tierSection.getString("material", "DIAMOND").uppercase())
+            val materialClaimed = Material.valueOf(tierSection.getString("materialClaimed", "GLASS_PANE").uppercase())
 
             val rewardActions = actionsList.mapNotNull { actionMap ->
                 val type = actionMap["type"] as? String ?: return@mapNotNull null
+                val visible = actionMap["visible"] as? Boolean ?: true
+                val lore = actionMap["lore"] as? List<String>
+
                 when (type.lowercase()) {
-                    "money" -> RewardAction.GiveMoney((actionMap["amount"] as? Number)?.toDouble() ?: 0.0)
-                    "xp" -> RewardAction.GiveXP((actionMap["amount"] as? Int) ?: 0)
-                    "command" -> RewardAction.RunCommand(actionMap["command"] as? String ?: "")
+                    "money" -> RewardAction.GiveMoney((actionMap["amount"] as? Number)?.toDouble() ?: 0.0, visible, lore)
+                    "xp" -> RewardAction.GiveXP((actionMap["amount"] as? Int) ?: 0, visible, lore)
+                    "command" -> RewardAction.RunCommand(actionMap["command"] as? String ?: "", visible, lore)
                     "sound" -> RewardAction.PlaySound(
                         actionMap["sound"] as? String ?: "",
                         (actionMap["volume"] as? Number)?.toFloat() ?: 1.0f,
-                        (actionMap["pitch"] as? Number)?.toFloat() ?: 1.0f
+                        (actionMap["pitch"] as? Number)?.toFloat() ?: 1.0f,
+                        visible,
+                        lore
                     )
                     "particle" -> RewardAction.ShowParticle(
                         actionMap["particle"] as? String ?: "",
-                        (actionMap["count"] as? Int) ?: 0
+                        (actionMap["count"] as? Int) ?: 0,
+                        visible,
+                        lore
                     )
                     else -> null
                 }
             }
 
-            rewardManager.tiers.add(RewardTier(id, unlockAfterMinutes, rewardActions))
+            rewardManager.tiers.add(RewardTier(tierName, id, unlockAfterMinutes, rewardActions, materialLocked, materialUnlocked, materialClaimed))
         }
     }
 }

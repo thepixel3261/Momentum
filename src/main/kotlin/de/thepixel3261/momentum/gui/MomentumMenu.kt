@@ -8,7 +8,8 @@
  * you must publish the complete modified source via a public repository;
  * providing source “on request” does NOT satisfy this requirement.
  *
- * See LICENSE (bottom) for full terms.
+ * See LICENSE (bottom) for full additional terms.
+ * See plugin.yml for full notice.
  */
 
 
@@ -24,7 +25,7 @@ import org.bukkit.entity.Player
 class MomentumMenu(private val plugin: Main) {
     fun open(player: Player) {
         val session = plugin.sessionManager.getSession(player) ?: return
-        val inventory = Bukkit.createInventory(null, 54, plugin.configLoader.guiTitle)
+        val inventory = Bukkit.createInventory(MomentumMenuHolder(), 54, plugin.configLoader.guiTitle)
 
         // Add placeholder items, info items, etc.
         val playtimeItem = ItemUtil.create(
@@ -44,26 +45,26 @@ class MomentumMenu(private val plugin: Main) {
         }
 
         // Display reward tiers
-        plugin.rewardManager.tiers.sortedBy { it.unlockAfterMinutes }.forEachIndexed { index, tier ->
+        plugin.rewardManager.tiers.sortedBy { it.id }.forEachIndexed { index, tier ->
             val isClaimed = session.claimedTiers.contains(tier.id)
             val isUnlocked = session.unlockedTiers.contains(tier.id)
 
-            val rewardsLore = tier.actions.map { action ->
-                when(action) {
-                    is RewardAction.GiveMoney -> "&e- Money: ${action.amount}"
-                    is RewardAction.GiveXP -> "&b- XP: ${action.amount}"
-                    is RewardAction.RunCommand -> "&d- Command: /${action.command.split(" ").first()}"
-                    is RewardAction.PlaySound -> "&a- Sound Effect"
-                    is RewardAction.ShowParticle -> "&c- Particle Effect"
+            val rewardsLore = tier.actions.filter { it.visible }.flatMap { action ->
+                action.lore ?: when(action) {
+                    is RewardAction.GiveMoney -> listOf("&e- Money: ${action.amount}")
+                    is RewardAction.GiveXP -> listOf("&b- XP: ${action.amount}")
+                    is RewardAction.RunCommand -> listOf("&d- Command: /${action.command.split(" ").first()}")
+                    is RewardAction.PlaySound -> listOf("&a- Sound Effect")
+                    is RewardAction.ShowParticle -> listOf("&c- Particle Effect")
                 }
             }
 
             val itemStack = when {
-                isClaimed -> ItemUtil.create(Material.GLASS_PANE, plugin.configLoader.tierClaimedName.replace("%tier_id%", tier.id.toString()), plugin.configLoader.tierClaimedLore)
-                isUnlocked -> ItemUtil.create(Material.DIAMOND, plugin.configLoader.tierClaimableName.replace("%tier_id%", tier.id.toString()), plugin.configLoader.tierClaimableLore.flatMap { if (it.contains("%rewards%")) rewardsLore else listOf(it) }, glowing = true)
+                isClaimed -> ItemUtil.create(Material.GLASS_PANE, plugin.configLoader.tierClaimedName.replace("%tier_id%", tier.id.toString()).replace("%tier_name%", tier.name), plugin.configLoader.tierClaimedLore)
+                isUnlocked -> ItemUtil.create(Material.DIAMOND, plugin.configLoader.tierClaimableName.replace("%tier_id%", tier.id.toString()).replace("%tier_name%", tier.name), plugin.configLoader.tierClaimableLore.flatMap { if (it.contains("%rewards%")) rewardsLore else listOf(it) }, glowing = true)
                 else -> {
                     val timeLeft = tier.unlockAfterMinutes - session.totalPlayMinutes
-                    ItemUtil.create(Material.GRAY_DYE, plugin.configLoader.tierLockedName.replace("%tier_id%", tier.id.toString()), plugin.configLoader.tierLockedLore.flatMap { if (it.contains("%rewards%")) rewardsLore else listOf(it) }.map { it.replace("%time_left%", timeLeft.toString()) })
+                    ItemUtil.create(Material.GRAY_DYE, plugin.configLoader.tierLockedName.replace("%tier_id%", tier.id.toString()).replace("%tier_name%", tier.name), plugin.configLoader.tierLockedLore.flatMap { if (it.contains("%rewards%")) rewardsLore else listOf(it) }.map { it.replace("%time_left%", timeLeft.toString()) })
                 }
             }
             inventory.setItem(18 + index, itemStack)

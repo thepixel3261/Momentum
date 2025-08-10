@@ -1,18 +1,39 @@
+# Configuration for reward tiers in Momentum.
 tiers:
-  tier1:
+  Tier 1: # also tier name
     id: 1
     unlockAfterMinutes: 30
+    materialLocked: GRAY_DYE
+    materialUnlocked: DIAMOND
+    materialClaimed: GLASS_PANE
     actions:
+      # Example 1: A standard reward action that is visible by default.
       - type: money
         amount: 100
+
+      # Example 2: A reward action with custom lore.
+      # This lore will be displayed instead of the default text.
       - type: xp
         amount: 50
+        lore:
+          - "&b+50 Experience Points"
+          - "&7- Level up your skills!"
+
+      # Example 3: A hidden reward action.
+      # This command will execute, but it won't be listed in the GUI.
       - type: command
         command: "give %player% diamond 1"
+        visible: false
+
+      # Example 4: A visible action with a default lore.
       - type: sound
         sound: "ENTITY_PLAYER_LEVELUP"
         volume: 1.0
         pitch: 1.2
+
+      # Example 5: Another visible action with a custom lore.
       - type: particle
         particle: "VILLAGER_HAPPY"
         count: 10
+        lore:
+          - "&a- A cool particle effect!"

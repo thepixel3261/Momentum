@@ -8,7 +8,8 @@
  * you must publish the complete modified source via a public repository;
  * providing source “on request” does NOT satisfy this requirement.
  *
- * See LICENSE (bottom) for full terms.
+ * See LICENSE (bottom) for full additional terms.
+ * See plugin.yml for full notice.
  */
 
 
@@ -76,21 +77,21 @@ class VersionUtil (val plugin: Main) : Listener {
         
         val currentParts = version.split('.').map { it.toInt() }
         val newParts = newVersion.split('.').map { it.toInt() }
-        
+
         return when {
             newParts[0] > currentParts[0] -> { // Major update
                 """
-                [Momentum]
+                [§aMomentum§f]
                 === §cIMPORTANT UPDATE§f ===
                 A new major version (§3$newVersion§f) is available!
                 This update contains breaking changes. Please read the changelog before updating.
                 """.trimIndent()
             }
             newParts[1] > currentParts[1] -> { // Minor update
-                "A new version (§3$newVersion§f) is available! New features and improvements — update recommended."
+                "[§aMomentum§f]\nA new version (§3$newVersion§f) is available! New features and improvements — update recommended."
             }
             else -> { // Patch update
-                "A new patch (§3$newVersion§f) is available! Fixes bugs and improves stability."
+                "[§aMomentum§f]\nA new patch (§3$newVersion§f) is available! Fixes bugs and improves stability."
             }
         }
     }
