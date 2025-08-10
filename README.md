@@ -7,6 +7,7 @@
   <img src="https://img.shields.io/bstats/servers/26832?color=green&label=servers&logo=data" alt="Servers using SessionPerks">
   <img src="https://img.shields.io/bstats/players/26832?color=blue&label=players&logo=minecraft" alt="Players">
   <img src="https://img.shields.io/github/v/release/thepixel3261/Momentum?label=version" alt="Version">
+  <img src="https://img.shields.io/endpoint?url=https://ghloc.vercel.app/api/thepixel3261/Momentum/badge&style=flat&logoColor=white&label=Lines%20of%20Code" alt="Lines of code">
 </p>
 
 ---
