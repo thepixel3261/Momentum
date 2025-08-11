@@ -8,13 +8,20 @@
  * you must publish the complete modified source via a public repository;
  * providing source “on request” does NOT satisfy this requirement.
  *
- * See LICENSE (bottom) for full terms.
+ * See LICENSE (bottom) for full additional terms.
+ * See plugin.yml for full notice.
  */
 
 package de.thepixel3261.momentum.reward
 
+import org.bukkit.Material
+
 data class RewardTier(
+    val name: String,
     val id: Int,
     val unlockAfterMinutes: Int,
-    val actions: List<RewardAction>
+    val actions: List<RewardAction>,
+    val materialLocked: Material,
+    val materialUnlocked: Material,
+    val materialClaimed: Material
 )

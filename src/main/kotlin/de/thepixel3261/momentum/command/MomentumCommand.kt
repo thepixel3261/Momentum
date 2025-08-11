@@ -8,7 +8,8 @@
  * you must publish the complete modified source via a public repository;
  * providing source “on request” does NOT satisfy this requirement.
  *
- * See LICENSE (bottom) for full terms.
+ * See LICENSE (bottom) for full additional terms.
+ * See plugin.yml for full notice.
  */
 
 package de.thepixel3261.momentum.command
@@ -19,9 +20,10 @@ import de.thepixel3261.momentum.reward.RewardManager
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
+import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
 
-class MomentumCommand(private val plugin: Main, private val rewardManager: RewardManager, private val momentumMenu: MomentumMenu) : CommandExecutor {
+class MomentumCommand(private val plugin: Main, private val rewardManager: RewardManager, private val momentumMenu: MomentumMenu) : CommandExecutor, TabCompleter {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (sender !is Player) {
             sender.sendMessage("This command can only be run by a player.")
@@ -63,5 +65,12 @@ class MomentumCommand(private val plugin: Main, private val rewardManager: Rewar
         }
 
         return true
+    }
+
+    override fun onTabComplete(sender: CommandSender?, command: Command?, label: String?, args: Array<out String>?): MutableList<String> {
+        if (sender !is Player) return mutableListOf()
+        if (args?.size != 1) return mutableListOf()
+        if (sender.hasPermission("momentum.reload")) return mutableListOf("reload")
+        return mutableListOf()
     }
 }

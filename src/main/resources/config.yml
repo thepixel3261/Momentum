@@ -25,18 +25,18 @@ gui:
       - "&7unlocked rewards!"
   tier_item:
     locked:
-      name: "&cTier %tier_id% (Locked)"
+      name: "&c%tier_name% (Locked)"
       lore:
         - "&7Unlock in: &e%time_left% minutes"
         - "&7Rewards:"
         - "%rewards%"
     claimable:
-      name: "&aTier %tier_id% (Claimable)"
+      name: "&aTier %tier_name% (Claimable)"
       lore:
         - "&7Click to claim your rewards!"
         - "&7Rewards:"
         - "%rewards%"
     claimed:
-      name: "&9Tier %tier_id% (Claimed)"
+      name: "&9Tier %tier_name% (Claimed)"
       lore:
         - "&7You have already claimed this."

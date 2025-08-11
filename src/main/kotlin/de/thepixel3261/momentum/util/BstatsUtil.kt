@@ -12,16 +12,20 @@
  * See plugin.yml for full notice.
  */
 
-package de.thepixel3261.momentum.session
 
-import java.util.*
+package de.thepixel3261.momentum.util
 
-data class SessionData(
-    val uuid: UUID,
-    var joinTime: Long,
-    var lastActivity: Long,
-    var totalPlayMinutes: Int,
-    var claimedTiers: MutableSet<Int>,
-    var unlockedTiers: MutableSet<Int>,
-    var isAfk: Boolean
-)
+import de.thepixel3261.momentum.Main
+import org.bstats.bukkit.Metrics
+import org.bstats.charts.SimplePie
+
+class BstatsUtil(val plugin: Main) {
+    private val bStatsId = 26832
+    val metrics = Metrics(plugin, bStatsId)
+
+    init {
+        metrics.addCustomChart(SimplePie("redis_use") {
+            return@SimplePie plugin.configLoader.redisEnabled.toString()
+        })
+    }
+}

@@ -8,7 +8,8 @@
  * you must publish the complete modified source via a public repository;
  * providing source “on request” does NOT satisfy this requirement.
  *
- * See LICENSE (bottom) for full terms.
+ * See LICENSE (bottom) for full additional terms.
+ * See plugin.yml for full notice.
  */
 
 package de.thepixel3261.momentum.gui
@@ -23,7 +24,7 @@ class GuiListener(private val plugin: Main) : Listener {
 
     @EventHandler
     fun onInventoryClick(event: InventoryClickEvent) {
-        if (event.view.title != plugin.configLoader.guiTitle) return
+        if (event.inventory.holder !is MomentumMenuHolder) return
 
         event.isCancelled = true
 

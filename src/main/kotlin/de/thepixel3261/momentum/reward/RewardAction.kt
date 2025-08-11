@@ -8,15 +8,19 @@
  * you must publish the complete modified source via a public repository;
  * providing source “on request” does NOT satisfy this requirement.
  *
- * See LICENSE (bottom) for full terms.
+ * See LICENSE (bottom) for full additional terms.
+ * See plugin.yml for full notice.
  */
 
 package de.thepixel3261.momentum.reward
 
 sealed class RewardAction {
-    data class GiveMoney(val amount: Double) : RewardAction()
-    data class GiveXP(val amount: Int) : RewardAction()
-    data class RunCommand(val command: String) : RewardAction()
-    data class PlaySound(val sound: String, val volume: Float, val pitch: Float) : RewardAction()
-    data class ShowParticle(val particle: String, val count: Int) : RewardAction()
+    abstract val visible: Boolean
+    abstract val lore: List<String>?
+
+    data class GiveMoney(val amount: Double, override val visible: Boolean, override val lore: List<String>?) : RewardAction()
+    data class GiveXP(val amount: Int, override val visible: Boolean, override val lore: List<String>?) : RewardAction()
+    data class RunCommand(val command: String, override val visible: Boolean, override val lore: List<String>?) : RewardAction()
+    data class PlaySound(val sound: String, val volume: Float, val pitch: Float, override val visible: Boolean, override val lore: List<String>?) : RewardAction()
+    data class ShowParticle(val particle: String, val count: Int, override val visible: Boolean, override val lore: List<String>?) : RewardAction()
 }
