@@ -8,6 +8,8 @@ redis:
   host: "localhost"
   port: 6379
   password: ""
+  ssl: false
+  ssl_verify_peer: true
 
 gui:
   title: "Session Rewards"
