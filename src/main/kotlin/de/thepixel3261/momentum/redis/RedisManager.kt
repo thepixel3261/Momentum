@@ -20,7 +20,12 @@ import de.thepixel3261.momentum.config.ConfigLoader
 import de.thepixel3261.momentum.session.SessionData
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
+import java.net.URI
 import java.util.*
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLParameters
 
 class RedisManager(private val plugin: Main, private val configLoader: ConfigLoader) {
     var jedisPool: JedisPool? = null
@@ -34,14 +39,68 @@ class RedisManager(private val plugin: Main, private val configLoader: ConfigLoa
 
         try {
             val poolConfig = JedisPoolConfig()
-            jedisPool = if (configLoader.redisPassword.isNotBlank()) {
-                JedisPool(poolConfig, configLoader.redisHost, configLoader.redisPort, 2000, configLoader.redisPassword)
+
+            // For SSL connection with authentication
+            if (configLoader.redisSsl) {
+                val sslSocketFactory = SSLContext.getDefault().socketFactory
+                val sslParameters = SSLParameters().apply {
+                    endpointIdentificationAlgorithm = if (configLoader.redisSslVerifyPeer) "HTTPS" else null
+                }
+                val hostnameVerifier = if (configLoader.redisSslVerifyPeer) {
+                    HttpsURLConnection.getDefaultHostnameVerifier()
+                } else {
+                    HostnameVerifier { _, _ -> true }
+                }
+
+                jedisPool = if (configLoader.redisUser.isNotEmpty() || configLoader.redisPassword.isNotEmpty()) {
+                    // With authentication
+                    JedisPool(
+                        poolConfig,
+                        configLoader.redisHost,
+                        configLoader.redisPort,
+                        2000,
+                        configLoader.redisPassword,
+                        0,
+                        configLoader.redisUser,
+                        true,
+                        sslSocketFactory,
+                        sslParameters,
+                        hostnameVerifier
+                    )
+                } else {
+                    // Without authentication
+                    JedisPool(
+                        poolConfig,
+                        URI(configLoader.redisHost),
+                        configLoader.redisPort,
+                        sslSocketFactory,
+                        sslParameters,
+                        hostnameVerifier
+                    )
+                }
             } else {
-                JedisPool(poolConfig, configLoader.redisHost, configLoader.redisPort, 2000)
+                // Non-SSL connection
+                jedisPool = if (configLoader.redisUser.isNotEmpty() || configLoader.redisPassword.isNotEmpty()) {
+                    JedisPool(
+                        poolConfig,
+                        configLoader.redisHost,
+                        configLoader.redisPort,
+                        configLoader.redisUser,
+                        configLoader.redisPassword,
+                    )
+                } else {
+                    JedisPool(
+                        poolConfig,
+                        configLoader.redisHost,
+                        configLoader.redisPort
+                    )
+                }
             }
-            plugin.logger.info("Successfully connected to Redis.")
+            
+            plugin.logger.info("Successfully connected to Redis${if (configLoader.redisSsl) " with SSL" else ""}.")
         } catch (e: Exception) {
             plugin.logger.severe("Failed to connect to Redis: ${e.message}")
+            e.printStackTrace()
             jedisPool = null
         }
     }

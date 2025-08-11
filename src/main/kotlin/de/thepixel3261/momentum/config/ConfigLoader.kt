@@ -30,7 +30,10 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
     var redisEnabled: Boolean = false
     var redisHost: String = "localhost"
     var redisPort: Int = 6379
+    var redisUser: String = ""
     var redisPassword: String = ""
+    var redisSsl: Boolean = false
+    var redisSslVerifyPeer: Boolean = true
 
     var guiTitle: String = "Session Rewards"
     var playtimeItemName: String = ""
@@ -63,7 +66,10 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
         redisEnabled = config.getBoolean("redis.enabled", false)
         redisHost = config.getString("redis.host", "localhost") ?: "localhost"
         redisPort = config.getInt("redis.port", 6379)
+        redisUser = config.getString("redis.user", "")
         redisPassword = config.getString("redis.password", "") ?: ""
+        redisSsl = config.getBoolean("redis.ssl", false)
+        redisSslVerifyPeer = config.getBoolean("redis.ssl_verify_peer", true)
 
         guiTitle = config.getString("gui.title", "Session Rewards") ?: "Session Rewards"
         playtimeItemName = config.getString("gui.playtime_item.name", "") ?: ""

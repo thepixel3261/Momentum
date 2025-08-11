@@ -20,13 +20,11 @@
     #If you modify and *run* this plugin on a publicly accessible Minecraft server,
     #you must publish the complete modified source code in a publicly accessible
     #repository (e.g. GitHub, GitLab). Merely offering the source “on request” does
-    #NOT satisfy this requirement.
-
-    #See LICENSE (bottom) for full terms.
+    #NOT fulfill this requirement.
 
 name: Momentum
 main: de.thepixel3261.momentum.Main
-version: '1.0.2-SNAPSHOT'
+version: '1.1.1'
 api-version: '1.21'
 author: thepixel3261
 description: Track player sessions and unlock rewards over time.
