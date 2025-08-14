@@ -1,4 +1,4 @@
-# Supports & color formatting.
+# Supports '&' color formatting.
 afk:
   now-afk: "[Momentum] You are now AFK."
   no-more-afk: "[Momentum] You are no longer AFK."

@@ -12,8 +12,6 @@
  * See plugin.yml for full notice.
  */
 
-
-
 package de.thepixel3261.momentum
 
 import de.thepixel3261.momentum.afk.AfkListener
@@ -138,7 +136,7 @@ class Main : JavaPlugin() {
         val messages = mutableListOf(
             "",
             "┌${"─".repeat(boxWidth - 2)}┐",
-            "│ $title │",
+            "│ ${title} │",
             "├${"─".repeat(boxWidth - 2)}┤",
             "│ Author: ${String.format("%-${boxWidth - 12}s", "thepixel3261")} │",
             "│ Language: ${String.format("%-${boxWidth - 14}s", lang)} │",

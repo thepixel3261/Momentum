@@ -1,17 +1,17 @@
-# Supports & color formatting.
+# Unterstutzt '&' Farbformatierung.
 afk:
   now-afk: "[Momentum] Du bist jetzt AFK."
   no-more-afk: "[Momentum] Du bist nicht mehr AFK."
 
 command:
-  no-permission: "[Momentum] You do not have permission to use this command."
-  needs-player: "[Momentum] Only players can use this command."
-  reloaded: "[Momentum] The config(s) has been reloaded."
+  no-permission: "[Momentum] Du hast keine Berechtigung diesen Command auszuführen."
+  needs-player: "[Momentum] Nur Spieler können diesen Command nutzen."
+  reloaded: "[Momentum] Die Konfiguration(en) wurden neu geladen."
 
 claim:
-  individual-claim-disabled: "[Momentum] You have to claim all rewards."
-  cannot-claim: "[Momentum] You can't claim this tier."
-  success: "[Momentum] You've claimed the reward for tier %tier_name%."
-  all-success: "[Momentum] You've claimed all available rewards!"
-  no-claimable-tiers: "[Momentum] You have no rewards to claim."
-  new-tier-unlocked: "[Momentum] You've unlocked a new reward tier!"
+  individual-claim-disabled: "[Momentum] Du musst alle Belohnungen beanspruchen."
+  cannot-claim: "[Momentum] Du kannst diese Stufe nicht beanspruchen."
+  success: "[Momentum] Sie haben die Belohnung für Stufe %tier_name% beansprucht."
+  no-claimable-tiers: "[Momentum] Sie haben keine Belohnungen zu beanspruchen."
+  all-success: "[Momentum] Sie haben alle verfügbaren Belohnungen eingefordert!"
+  new-tier-unlocked: "[Momentum] Du hast eine neue Belohnungsstufe freigeschaltet!"
