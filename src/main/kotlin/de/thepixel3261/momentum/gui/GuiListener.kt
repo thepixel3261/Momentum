@@ -41,8 +41,7 @@ class GuiListener(private val plugin: Main) : Listener {
         }
 
         // Tier items
-        val tierIdString = clickedItem.itemMeta?.displayName?.substringAfter("Tier ")?.substringBefore(" ")
-        val tierId = tierIdString?.toIntOrNull() ?: return
+        val tierId = plugin.momentumMenu.slots[event.slot] ?: return
 
         plugin.rewardManager.claimTier(player, tierId)
         plugin.momentumMenu.open(player) // Refresh GUI

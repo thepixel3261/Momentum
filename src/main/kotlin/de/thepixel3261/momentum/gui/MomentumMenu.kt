@@ -22,6 +22,8 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 
 class MomentumMenu(private val plugin: Main) {
+    val slots = HashMap<Int, Int>()
+
     fun open(player: Player) {
         val session = plugin.sessionManager.getSession(player) ?: return
         val inventory = Bukkit.createInventory(MomentumMenuHolder(), 54, plugin.configLoader.guiTitle)
@@ -66,6 +68,8 @@ class MomentumMenu(private val plugin: Main) {
                     ItemUtil.create(Material.GRAY_DYE, plugin.configLoader.tierLockedName.replace("%tier_id%", tier.id.toString()).replace("%tier_name%", tier.name), plugin.configLoader.tierLockedLore.flatMap { if (it.contains("%rewards%")) rewardsLore else listOf(it) }.map { it.replace("%time_left%", timeLeft.toString()) })
                 }
             }
+
+            slots[index + 18] = tier.id
             inventory.setItem(18 + index, itemStack)
         }
 

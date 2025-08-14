@@ -27,7 +27,9 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
 
     var afkTimeoutMinutes: Int = 5
     var allowClaimAll: Boolean = true
-    private var allowIndividualClaim: Boolean = true
+    var allowIndividualClaim: Boolean = true
+
+    var lang: String = "en_US"
 
     var redisEnabled: Boolean = false
     var redisHost: String = "localhost"
@@ -49,7 +51,10 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
     var tierClaimedName: String = ""
     var tierClaimedLore: List<String> = emptyList()
 
+    var tierCount: Int = 0
+
     fun load() {
+        tierCount = 0
         plugin.saveDefaultConfig()
         loadMainConfig(plugin.config)
 
@@ -62,6 +67,7 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
 
     private fun loadMainConfig(config: FileConfiguration) {
         afkTimeoutMinutes = config.getInt("afkTimeoutMinutes", 5)
+        lang = config.getString("language", "en_US")
         allowClaimAll = config.getBoolean("claim.allowClaimAll", true)
         allowIndividualClaim = config.getBoolean("claim.allowIndividualClaim", true)
 
@@ -91,6 +97,7 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
         val tiersSection = rewardsConfig.getConfigurationSection("tiers") ?: return
 
         for (tierName in tiersSection.getKeys(false)) {
+            tierCount++
             val tierSection = tiersSection.getConfigurationSection(tierName) ?: continue
             val id = tierSection.getInt("id")
             val unlockAfterMinutes = tierSection.getInt("unlockAfterMinutes")

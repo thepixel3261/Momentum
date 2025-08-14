@@ -15,6 +15,7 @@
 package de.thepixel3261.momentum.session
 
 import de.thepixel3261.momentum.Main
+import de.thepixel3261.momentum.lang.LanguageParser.translate
 import de.thepixel3261.momentum.reward.RewardManager
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -58,7 +59,7 @@ class SessionManager(private val plugin: Main) {
                 rewardManager.tiers.forEach { tier ->
                     if (session.totalPlayMinutes >= tier.unlockAfterMinutes && !session.unlockedTiers.contains(tier.id)) {
                         session.unlockedTiers.add(tier.id)
-                        player.sendMessage("You've unlocked a new reward tier!")
+                        player.sendMessage("%lang_claim.new-tier-unlocked%".translate())
                     }
                 }
             }
