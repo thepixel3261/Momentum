@@ -12,8 +12,6 @@
  * See plugin.yml for full notice.
  */
 
-
-
 package de.thepixel3261.momentum
 
 import de.thepixel3261.momentum.afk.AfkListener
