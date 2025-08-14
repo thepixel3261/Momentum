@@ -22,8 +22,9 @@ tiers:
       # Example 3: A hidden reward action.
       # This command will execute, but it won't be listed in the GUI.
       - type: command
-        command: "give %player% diamond 1"
+        command: "give %player% diamond %amount%"
         visible: false
+        amount: 2
 
       # Example 4: A visible action with a default lore.
       - type: sound

@@ -22,6 +22,8 @@ import de.thepixel3261.momentum.command.MomentumCommand
 import de.thepixel3261.momentum.config.ConfigLoader
 import de.thepixel3261.momentum.gui.GuiListener
 import de.thepixel3261.momentum.gui.MomentumMenu
+import de.thepixel3261.momentum.lang.LanguageManager
+import de.thepixel3261.momentum.lang.LanguageParser.translate
 import de.thepixel3261.momentum.redis.RedisManager
 import de.thepixel3261.momentum.reward.RewardManager
 import de.thepixel3261.momentum.session.SessionListener
@@ -45,15 +47,20 @@ class Main : JavaPlugin() {
     lateinit var redisManager: RedisManager
     lateinit var momentumMenu: MomentumMenu
     lateinit var versionUtil: VersionUtil
+    lateinit var languageManager: LanguageManager
+    var placeholderAPIv: String? = null
+    var vaultv: String? = null
+    var loadTime: Long = 0
 
     override fun onEnable() {
+        loadTime = System.currentTimeMillis()
         // 1. Setup external dependencies
         if (!setupEconomy()) {
             logger.warning("Vault not found! Economy features will be disabled.")
         }
 
         // 2. Instantiate managers
-        rewardManager = RewardManager(economy)
+        rewardManager = RewardManager(economy, this)
         sessionManager = SessionManager(this)
         afkManager = AfkManager(this, sessionManager)
         configLoader = ConfigLoader(this, rewardManager)
@@ -74,7 +81,7 @@ class Main : JavaPlugin() {
         server.pluginManager.registerEvents(AfkListener(afkManager), this)
         server.pluginManager.registerEvents(GuiListener(this), this)
         server.pluginManager.registerEvents(VersionUtil(this), this)
-        getCommand("momentum")?.executor = MomentumCommand(this, rewardManager, momentumMenu)
+        getCommand("momentum")?.executor = MomentumCommand(this, momentumMenu)
 
         // 6. Start tasks
         afkManager.startAfkChecker()
@@ -83,18 +90,19 @@ class Main : JavaPlugin() {
         // 7. Register PlaceholderAPI expansion
         if (server.pluginManager.getPlugin("PlaceholderAPI") != null) {
             PlaceholderUtil(this).register()
+            placeholderAPIv = server.pluginManager.getPlugin("PlaceholderAPI").description.version
         }
 
+        // 8. Load languages (again because of ConfigLoader)
+        languageManager = LanguageManager(this)
         BstatsUtil(this)
 
-        logger.info("Momentum plugin enabled.")
-
-        server.consoleSender.sendMessage("---§aMomentum§f---")
-        server.consoleSender.sendMessage("Version: §3${description.version}")
-        server.consoleSender.sendMessage("Author: §6thepixel3261")
+        logger.info(startUpLog().joinToString("\n"))
         if (versionUtil.getUpdateMessage() != null) {
-            server.consoleSender.sendMessage("${versionUtil.getUpdateMessage()}")
+            Bukkit.getConsoleSender().sendMessage(versionUtil.getUpdateMessage())
         }
+
+        Bukkit.getConsoleSender().sendMessage("%lang_test%".translate())
     }
 
     override fun onDisable() {
@@ -107,8 +115,41 @@ class Main : JavaPlugin() {
             return false
         }
 
+        vaultv = server.pluginManager.getPlugin("Vault").description.version
+
         val rsp = server.servicesManager.getRegistration(Economy::class.java) ?: return false
         economy = rsp.provider
         return economy != null
+    }
+
+    fun startUpLog(): List<String> {
+        val boxWidth = 40
+        val title = "Momentum v${description.version}".padEnd(boxWidth - 4, ' ').let {
+            if (it.length > boxWidth - 4) it.take(boxWidth - 2) else it
+        }
+
+        val redisInfo = "Redis ${if (configLoader.redisSsl) "(SSL Enabled)" else ""}"
+        val crossServerSync = if (configLoader.redisEnabled) "ENABLED" else "DISABLED"
+        val rewardsCount = configLoader.tierCount
+        val placeholdersCount = if (server.pluginManager.getPlugin("PlaceholderAPI") != null) 2 else 0
+        val loadTime = System.currentTimeMillis() - loadTime
+        val lang = configLoader.lang
+
+        val messages = mutableListOf(
+            "",
+            "┌${"─".repeat(boxWidth - 2)}┐",
+            "│ $title │",
+            "├${"─".repeat(boxWidth - 2)}┤",
+            "│ Author: ${String.format("%-${boxWidth - 12}s", "thepixel3261")} │",
+            "│ Language: ${String.format("%-${boxWidth - 14}s", lang)} │",
+            "│ Storage: ${String.format("%-${boxWidth - 13}s", redisInfo)} │",
+            "│ Cross-Server Sync: ${String.format("%-${boxWidth - 23}s", crossServerSync)} │",
+            "│ Rewards Loaded: ${String.format("%-${boxWidth - 20}s", rewardsCount)} │",
+            "│ PlaceholderAPI: ${String.format("%-${boxWidth - 20}s", "$placeholdersCount placeholders")} │",
+            "│ Load Time: ${String.format("%-${boxWidth - 15}s", "$loadTime ms")} │",
+            "└${"─".repeat(boxWidth - 2)}┘"
+        )
+
+        return messages
     }
 }

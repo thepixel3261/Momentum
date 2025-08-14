@@ -15,7 +15,7 @@
 package de.thepixel3261.momentum.gui
 
 import de.thepixel3261.momentum.Main
-import org.bukkit.ChatColor
+import de.thepixel3261.momentum.session.MultiplierManager.recycle
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -30,19 +30,28 @@ class GuiListener(private val plugin: Main) : Listener {
 
         val player = event.whoClicked as? org.bukkit.entity.Player ?: return
 
-        // Logic to handle clicks will go here
-        val clickedItem = event.currentItem ?: return
+        // Recycle button
+        val session = plugin.sessionManager.getSession(player) ?: plugin.sessionManager.startSession(player)
+        val rewardTiers: MutableSet<Int> = mutableSetOf()
+        plugin.rewardManager.tiers.forEach {tier ->
+            rewardTiers += tier.id
+        }
+        if (session.claimedTiers.containsAll(rewardTiers)) {
+            if (event.slot == 49) {
+                session.recycle()
+                player.closeInventory()
+            }
+        }
 
         // Claim All button
-        if (clickedItem.itemMeta?.displayName == ChatColor.translateAlternateColorCodes('&', plugin.configLoader.claimAllItemName)) {
+        if (event.slot == 49) {
             plugin.rewardManager.claimAllTiers(player)
             player.closeInventory()
             return
         }
 
         // Tier items
-        val tierIdString = clickedItem.itemMeta?.displayName?.substringAfter("Tier ")?.substringBefore(" ")
-        val tierId = tierIdString?.toIntOrNull() ?: return
+        val tierId = plugin.momentumMenu.slots[event.slot] ?: return
 
         plugin.rewardManager.claimTier(player, tierId)
         plugin.momentumMenu.open(player) // Refresh GUI

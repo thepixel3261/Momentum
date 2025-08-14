@@ -96,6 +96,10 @@ class RedisManager(private val plugin: Main, private val configLoader: ConfigLoa
                     )
                 }
             }
+
+            jedisPool!!.resource.use { jedis ->
+                jedis.ping()
+            }
             
             plugin.logger.info("Successfully connected to Redis${if (configLoader.redisSsl) " with SSL" else ""}.")
         } catch (e: Exception) {

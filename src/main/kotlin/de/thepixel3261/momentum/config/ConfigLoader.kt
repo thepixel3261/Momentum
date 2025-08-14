@@ -18,6 +18,7 @@ import de.thepixel3261.momentum.Main
 import de.thepixel3261.momentum.reward.RewardAction
 import de.thepixel3261.momentum.reward.RewardManager
 import de.thepixel3261.momentum.reward.RewardTier
+import de.thepixel3261.momentum.session.MultiplierManager
 import org.bukkit.Material
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
@@ -27,7 +28,9 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
 
     var afkTimeoutMinutes: Int = 5
     var allowClaimAll: Boolean = true
-    private var allowIndividualClaim: Boolean = true
+    var allowIndividualClaim: Boolean = true
+
+    var lang: String = "en_US"
 
     var redisEnabled: Boolean = false
     var redisHost: String = "localhost"
@@ -49,7 +52,10 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
     var tierClaimedName: String = ""
     var tierClaimedLore: List<String> = emptyList()
 
+    var tierCount: Int = 0
+
     fun load() {
+        tierCount = 0
         plugin.saveDefaultConfig()
         loadMainConfig(plugin.config)
 
@@ -62,8 +68,10 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
 
     private fun loadMainConfig(config: FileConfiguration) {
         afkTimeoutMinutes = config.getInt("afkTimeoutMinutes", 5)
+        lang = config.getString("language", "en_US")
         allowClaimAll = config.getBoolean("claim.allowClaimAll", true)
         allowIndividualClaim = config.getBoolean("claim.allowIndividualClaim", true)
+        MultiplierManager.setRecycleMultiplier(config.getDouble("claim.recycleMultiplier", 1.0))
 
         redisEnabled = config.getBoolean("redis.enabled", false)
         redisHost = config.getString("redis.host", "localhost") ?: "localhost"
@@ -91,6 +99,7 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
         val tiersSection = rewardsConfig.getConfigurationSection("tiers") ?: return
 
         for (tierName in tiersSection.getKeys(false)) {
+            tierCount++
             val tierSection = tiersSection.getConfigurationSection(tierName) ?: continue
             val id = tierSection.getInt("id")
             val unlockAfterMinutes = tierSection.getInt("unlockAfterMinutes")
@@ -107,7 +116,7 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
                 when (type.lowercase()) {
                     "money" -> RewardAction.GiveMoney((actionMap["amount"] as? Number)?.toDouble() ?: 0.0, visible, lore)
                     "xp" -> RewardAction.GiveXP((actionMap["amount"] as? Int) ?: 0, visible, lore)
-                    "command" -> RewardAction.RunCommand(actionMap["command"] as? String ?: "", visible, lore)
+                    "command" -> RewardAction.RunCommand(actionMap["command"] as? String ?: "", actionMap["amount"] as? Double ?: 1.0,visible, lore)
                     "sound" -> RewardAction.PlaySound(
                         actionMap["sound"] as? String ?: "",
                         (actionMap["volume"] as? Number)?.toFloat() ?: 1.0f,

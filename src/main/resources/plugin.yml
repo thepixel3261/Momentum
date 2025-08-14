@@ -24,7 +24,7 @@
 
 name: Momentum
 main: de.thepixel3261.momentum.Main
-version: '1.1.1'
+version: '1.2.0-SNAPSHOT'
 api-version: '1.21'
 author: thepixel3261
 description: Track player sessions and unlock rewards over time.
@@ -47,3 +47,15 @@ permissions:
   momentum.reload:
     description: Allows reloading the Momentum configuration.
     default: op
+  momentum.multiplier:
+    description: Multiply rewards by x
+    children:
+      - momentum.multiplier.1_0
+      - momentum.multiplier.2_0
+      - momentum.multiplier.3_0
+    default: false
+
+  momentum.multiplier.1_0:
+    description: Multiply rewards by 1.0
+    default: true
+    parent: momentum.multiplier

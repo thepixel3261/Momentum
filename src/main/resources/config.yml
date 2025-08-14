@@ -1,7 +1,9 @@
 afkTimeoutMinutes: 5
+lang: "en_US"
 claim:
   allowClaimAll: true
   allowIndividualClaim: true
+  recycleMultiplier: 1.5
 
 redis:
   enabled: false
