@@ -19,6 +19,8 @@ import org.bukkit.Bukkit
 
 object MultiplierManager {
     var recycleMultiplier: Double = 1.0
+    var recycles30: Int = 0
+    var recycles: Int = 0
     fun SessionData.addMultiplier(value: Double) {
         this.multiplier *= value
     }
@@ -37,6 +39,9 @@ object MultiplierManager {
     }
 
     fun SessionData.recycle(): SessionData {
+        recycles++
+        recycles30++
+
         this.lastRecycle = this.totalPlayMinutes
         this.addMultiplier(recycleMultiplier)
         this.claimedTiers = mutableSetOf()

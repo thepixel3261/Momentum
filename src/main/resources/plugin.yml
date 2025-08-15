@@ -24,7 +24,7 @@
 
 name: Momentum
 main: de.thepixel3261.momentum.Main
-version: '1.2.0'
+version: '1.2.1'
 api-version: '1.21'
 author: thepixel3261
 description: Track player sessions and unlock rewards over time.

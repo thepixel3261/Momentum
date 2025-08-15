@@ -16,6 +16,7 @@
 package de.thepixel3261.momentum.util
 
 import de.thepixel3261.momentum.Main
+import de.thepixel3261.momentum.session.MultiplierManager
 import org.bstats.bukkit.Metrics
 import org.bstats.charts.SimplePie
 import org.bstats.charts.SingleLineChart
@@ -61,6 +62,18 @@ class BstatsUtil(val plugin: Main) {
             }
 
             return@DrilldownPie map
+        })
+        metrics.addCustomChart(SimplePie("language") {
+            val language = plugin.configLoader.lang
+            return@SimplePie language
+        })
+        metrics.addCustomChart(SingleLineChart("recycles_30") {
+            val amount = MultiplierManager.recycles30
+            return@SingleLineChart amount
+        })
+        metrics.addCustomChart(SingleLineChart("recycles") {
+            val amount = MultiplierManager.recycles
+            return@SingleLineChart amount
         })
     }
 }
