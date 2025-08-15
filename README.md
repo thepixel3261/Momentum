@@ -1,10 +1,12 @@
-<h1 align="center">🧠 Momentum</h1>
+<h1 align="center">🚀 Momentum</h1>
 <p align="center">
-  ⏳ Reward your players for being online — the longer they stay, the more they gain.
+  ⏳ Reward your players for being online — the longer they stay, the more they gain. Now with Multipliers & Recycling!  
+  <a href="https://github.com/thepixel3261/Momentum/wiki">📚 View Wiki</a> | 
+  <a href="https://modrinth.com/plugin/momentum-rewards/">⬇️ Download</a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/bstats/servers/26832?color=green&label=servers&logo=data" alt="Servers using SessionPerks">
+  <img src="https://img.shields.io/bstats/servers/26832?color=green&label=servers&logo=data" alt="Servers using Momentum">
   <img src="https://img.shields.io/bstats/players/26832?color=blue&label=players&logo=minecraft" alt="Players">
   <img src="https://img.shields.io/github/v/release/thepixel3261/Momentum?label=version" alt="Version">
   <img src="https://img.shields.io/endpoint?url=https://ghloc.vercel.app/api/thepixel3261/Momentum/badge&style=flat&logoColor=white&label=Lines%20of%20Code" alt="Lines of code">
@@ -14,25 +16,76 @@
 
 ## ✨ Features
 
-- 🎁 Unlock reward tiers based on **active playtime**
-- ⌛ Session resets on logout or **continues on server switch**
-- 💤 Session pauses when **AFK**
-- 🧠 Fully configurable **rewards.yml** and **config.yml**
-- 💸 Supports: Vault, XP, commands, Crates, particles, sounds
-- 📦 GUI to view/claim unlocked rewards
-- 🔀 Cross-server support via Redis
-- 🧩 PlaceholderAPI integration
-- 🆓 100% **Free & Open Source**
+### Core Features
+- 🎁 **Progressive Rewards** - Unlock better rewards the longer you play
+- 🔄 **Recycling System** - Reset your progress for permanent multiplier boosts
+- ⚡ **Multipliers** - Earn more with permission-based reward multipliers
+- ⏳ **Session Persistence** - Progress continues across server restarts
+- 💤 **AFK Detection** - Pauses timers when players are AFK
+
+### Technical Features
+- 🌍 **Multi-Language** - Built-in support for multiple languages
+- 🧩 **PlaceholderAPI** - Extensive placeholder support
+- 🔗 **Cross-Server** - Redis support for network-wide sessions
+- 🛠️ **Fully Configurable** - Customize every aspect of the plugin
+- 💰 **Economy Support** - Works with Vault-compatible economy plugins
+- 📊 **Statistics** - Track player progress and server metrics
+
+### Reward Types
+- 💵 Money rewards (Vault)
+- ⭐ XP/Levels
+- 🎯 Commands
+- 🎇 Particles
+- 🎵 Sounds
+- And more through custom commands!
 
 ---
 
 ## 🖼️ GUI Preview
 
-> ![](.README_images/e1bedd78.png)
-> ![](.README_images/d8854c8b.png)
-> 
+### Main Menu
+![Main Menu](.README_images/e1bedd78.png)
+*View your current playtime, available rewards, and multiplier status*
+
+### Reward Tiers
+![Reward Tiers](.README_images/d8854c8b.png)
+*Earn better rewards as you play longer*
+
+### Recycling System
+![Recycling](.README_images/recycle-preview.png)
+*Reset your progress for permanent multiplier bonuses*
 
 ---
+
+## ⚙️ Configuration
+
+### Files
+- `config.yml` - Main configuration file
+- `rewards.yml` - Define reward tiers and rewards
+- `languages/` - Customize plugin messages
+
+### Commands
+- `/momentum` - Open the rewards menu
+- `/momentum reload` - Reload the configuration (requires `momentum.reload` permission)
+
+### Permissions
+```yaml
+# Basic permissions
+momentum.use: true  # Allows using /momentum
+momentum.reload: op  # Allows reloading the config
+
+# Multiplier permissions (grant these to players)
+momentum.multiplier.1_0: true  # 1x (default)
+momentum.multiplier.2_0: false  # 2x multiplier
+momentum.multiplier.3_0: false  # 3x multiplier
+```
+
+### Placeholders
+```
+%momentum_multiplier% - Current reward multiplier
+%momentum_playtime% - Current session playtime
+%momentum_next_tier% - Time until next reward tier
+```
 
 ## 🔧 Requirements
 
@@ -40,18 +93,35 @@
 |----------------|------------------------------------|
 | Minecraft      | `1.21.x`                           |
 | Server         | `Paper / Bukkit`                   |
-| Economy        | Vault + (CMI, EssentialsX, etc.)   |
-| Redis (config) | Optional, For cross-server support |
-| PlaceholderAPI | Optional, for placeholders         |
-| Java           | 21+                                |
+| Java           | `21+`                              |
+| Vault          | Required for economy features      |
+| Economy Plugin | EssentialsX, CMI, etc. (optional)  |
+| Redis          | For cross-server support (optional)|
+| PlaceholderAPI | For placeholders (optional)        |
 
 ---
 
 ## 📥 Installation
 
-```bash
-1. Download the latest release from GitHub or Modrinth
-2. Drop it into `/plugins`
-3. Install Vault and an economy plugin
-4. (Optional) Set up Redis for multi-server sessions
-5. Restart your server
+### Quick Start
+1. Download the latest release from [GitHub](https://github.com/thepixel3261/Momentum/releases) or [Modrinth](https://modrinth.com/plugin/momentum)
+2. Place the JAR in your server's `/plugins` folder
+3. Start your server to generate config files
+4. Configure `rewards.yml` with your desired rewards
+5. Restart the server
+
+### Dependencies
+- **Required**:
+  - Java 21 or higher
+  - Paper/Spigot 1.21.x
+  - [Vault](https://www.spigotmc.org/resources/vault.34315/) (for economy support)
+  - An economy plugin (EssentialsX, CMI, etc.)
+
+- **Optional**:
+  - [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) (for placeholders)
+  - Redis (for cross-server functionality)
+
+### Updating
+1. Backup your configuration files
+2. Replace the old JAR with the new one
+3. Restart your server
