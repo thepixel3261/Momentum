@@ -43,7 +43,7 @@
 | Economy        | Vault + (CMI, EssentialsX, etc.)   |
 | Redis (config) | Optional, For cross-server support |
 | PlaceholderAPI | Optional, for placeholders         |
-| Java           | 17+                                |
+| Java           | 21+                                |
 
 ---
 

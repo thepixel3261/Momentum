@@ -18,6 +18,8 @@ package de.thepixel3261.momentum.util
 import de.thepixel3261.momentum.Main
 import org.bstats.bukkit.Metrics
 import org.bstats.charts.SimplePie
+import org.bstats.charts.SingleLineChart
+import org.bstats.charts.DrilldownPie
 
 class BstatsUtil(val plugin: Main) {
     private val bStatsId = 26832
@@ -26,6 +28,39 @@ class BstatsUtil(val plugin: Main) {
     init {
         metrics.addCustomChart(SimplePie("redis_use") {
             return@SimplePie plugin.configLoader.redisEnabled.toString()
+        })
+        metrics.addCustomChart(SimplePie("tiers_count") {
+            return@SimplePie plugin.configLoader.tierCount.toString()
+        })
+        metrics.addCustomChart(SimplePie("amount_of_players") {
+            return@SimplePie plugin.server.onlinePlayers.size.toString()
+        })
+        metrics.addCustomChart(SingleLineChart("tiers_claimed_30") {
+            val amount = plugin.rewardManager.claimedTiers30
+            plugin.rewardManager.claimedTiers30 = 0
+            return@SingleLineChart amount
+        })
+        metrics.addCustomChart(SingleLineChart("tiers_claimed") {
+            return@SingleLineChart plugin.rewardManager.claimedTiers
+        })
+        metrics.addCustomChart(SingleLineChart("actions_executed_30") {
+            val amount = plugin.rewardManager.executedActions30
+            plugin.rewardManager.executedActions30 = 0
+            return@SingleLineChart amount
+        })
+        metrics.addCustomChart(SingleLineChart("actions_executed") {
+            return@SingleLineChart plugin.rewardManager.executedActions
+        })
+        metrics.addCustomChart(DrilldownPie("dependencies") {
+            val map = HashMap<String, Map<String, Int>>()
+            if (plugin.placeholderAPIv != null) {
+                map["placeholderapi"] = mapOf(plugin.placeholderAPIv!! to 1)
+            }
+            if (plugin.vaultv != null) {
+                map["vault"] = mapOf(plugin.vaultv!! to 1)
+            }
+
+            return@DrilldownPie map
         })
     }
 }

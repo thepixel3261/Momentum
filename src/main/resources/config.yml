@@ -1,7 +1,11 @@
 afkTimeoutMinutes: 5
+lang: "en_US"
 claim:
   allowClaimAll: true
   allowIndividualClaim: true
+  recycle:
+    enabled: true
+    recycleMultiplier: 1.5
 
 redis:
   enabled: false
@@ -23,6 +27,11 @@ gui:
     lore:
       - "&7Click to claim all"
       - "&7unlocked rewards!"
+  recycle_item:
+    name: "&9Recycle"
+    lore:
+      - "Multiply: %multiplier%"
+      - "New Multiplier: %new_multiplier%"
   tier_item:
     locked:
       name: "&c%tier_name% (Locked)"

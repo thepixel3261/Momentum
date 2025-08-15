@@ -15,6 +15,7 @@
 package de.thepixel3261.momentum.afk
 
 import de.thepixel3261.momentum.Main
+import de.thepixel3261.momentum.lang.LanguageParser.translate
 import de.thepixel3261.momentum.session.SessionManager
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -53,10 +54,10 @@ class AfkManager(private val plugin: Main, private val sessionManager: SessionMa
         session.isAfk = afk
         if (afk) {
             afkPlayers.add(player.uniqueId)
-            player.sendMessage("You are now AFK.")
+            player.sendMessage("%lang_afk.now-afk%".translate())
         } else {
             afkPlayers.remove(player.uniqueId)
-            player.sendMessage("You are no longer AFK.")
+            player.sendMessage("%lang_afk.no-more-afk%".translate())
         }
     }
 }

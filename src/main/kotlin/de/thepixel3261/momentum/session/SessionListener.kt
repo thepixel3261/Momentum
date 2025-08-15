@@ -39,14 +39,9 @@ class SessionListener(
 
         if (sessionData != null) {
             // Update the session with the stored data
-            val session = sessionManager.getSession(player) ?: sessionManager.startSession(player, null)
-
-            session.joinTime = sessionData.joinTime
-            session.totalPlayMinutes = sessionData.totalPlayMinutes
-            session.claimedTiers = sessionData.claimedTiers
-            session.unlockedTiers = sessionData.unlockedTiers
+            sessionManager.getSession(player) ?: sessionManager.startSession(player, sessionData)
         } else {
-            sessionManager.startSession(player, null)
+            sessionManager.startSession(player)
         }
     }
 

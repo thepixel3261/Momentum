@@ -8,7 +8,8 @@
  * you must publish the complete modified source via a public repository;
  * providing source “on request” does NOT satisfy this requirement.
  *
- * See LICENSE (bottom) for full terms.
+ * See LICENSE (bottom) for full additional terms.
+ * See plugin.yml for full notice.
  */
 
 
@@ -95,6 +96,10 @@ class RedisManager(private val plugin: Main, private val configLoader: ConfigLoa
                         configLoader.redisPort
                     )
                 }
+            }
+
+            jedisPool!!.resource.use { jedis ->
+                jedis.ping()
             }
             
             plugin.logger.info("Successfully connected to Redis${if (configLoader.redisSsl) " with SSL" else ""}.")

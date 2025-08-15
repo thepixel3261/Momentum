@@ -16,6 +16,9 @@ package de.thepixel3261.momentum.util
 
 import com.google.gson.Gson
 import de.thepixel3261.momentum.Main
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.event.ClickEvent
+import net.kyori.adventure.text.event.HoverEvent
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -39,6 +42,7 @@ class VersionUtil (val plugin: Main) : Listener {
 
     private fun checkForUpdates() {
         if (latestVersion != null) return
+        if (plugin.description.version.endsWith("-SNAPSHOT")) return
 
         try {
             val url = URL(gitHubReleasesURL)
@@ -65,11 +69,47 @@ class VersionUtil (val plugin: Main) : Listener {
 
     private fun notifyPlayer(player: Player) {
         if (!player.isOp || notifiedAdmins.contains(player.uniqueId) || updateMessage == null) return
-        
-        player.sendMessage("\n${updateMessage!!}\n")
+
+        // Get the Adventure audience for the player
+        val audience = player as net.kyori.adventure.audience.Audience
+
+        // Send the update message
+        audience.sendMessage(Component.text("\n$updateMessage"))
+
+        // Create and send Modrinth link
+        val modrinthLink = Component.text()
+            .content("Click here to download latest version (Modrinth)\n")
+            .color(net.kyori.adventure.text.format.NamedTextColor.AQUA)
+            .clickEvent(ClickEvent.openUrl(
+                "https://modrinth.com/plugin/momentum-rewards/version/${latestVersion!!}"
+            ))
+            .hoverEvent(HoverEvent.showText(
+                Component.text("Open Modrinth")
+            ))
+            .build()
+
+        // Create and send GitHub link
+        val githubLink = Component.text()
+            .content("Click here to download the latest version (GitHub)")
+            .color(net.kyori.adventure.text.format.NamedTextColor.AQUA)
+            .clickEvent(
+                ClickEvent.openUrl(
+                "https://github.com/thepixel3261/Momentum/releases/latest"
+            ))
+            .hoverEvent(
+                HoverEvent.showText(
+                Component.text("Open GitHub")
+            ))
+            .build()
+
+        // Send both links
+        audience.sendMessage(modrinthLink)
+        audience.sendMessage(githubLink)
+
         notifiedAdmins.add(player.uniqueId)
     }
-    
+
+
     fun getUpdateMessage(): String? {
         val newVersion = latestVersion ?: return null
         if (!isNewerVersion(newVersion)) return null
