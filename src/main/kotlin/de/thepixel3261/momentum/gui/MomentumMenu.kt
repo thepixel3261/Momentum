@@ -21,6 +21,7 @@ import de.thepixel3261.momentum.util.ItemUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemFlag
 
 class MomentumMenu(private val plugin: Main) {
     val slots = HashMap<Int, Int>()
@@ -33,7 +34,10 @@ class MomentumMenu(private val plugin: Main) {
         val playtimeItem = ItemUtil.create(
             Material.CLOCK,
             plugin.configLoader.playtimeItemName,
-            plugin.configLoader.playtimeItemLore.map { it.replace("%momentum_minutes%", session.totalPlayMinutes.toString()) }
+            plugin.configLoader.playtimeItemLore.map { line ->
+                line.replace("%momentum_minutes%", session.totalPlayMinutes.toString())
+                .replace("%multiplier%", session.multiplier.toString().slice(0..2))
+            }
         )
         inventory.setItem(4, playtimeItem)
 
@@ -50,13 +54,17 @@ class MomentumMenu(private val plugin: Main) {
         plugin.rewardManager.tiers.forEach {tier ->
             rewardTiers += tier.id
         }
-        if (session.claimedTiers.containsAll(rewardTiers)) {
+        if (session.claimedTiers.containsAll(rewardTiers) && plugin.configLoader.allowRecycle) {
             val recycleItem = ItemUtil.create(
                 Material.FIREWORK_ROCKET,
                 "Recycle",
-                listOf("Multiply ${MultiplierManager.recycleMultiplier}x",
-                    "New Multiplier: ${MultiplierManager.recycleMultiplier * session.multiplier}<")
+                listOf("Multiply %multiplier%x".replace("%multiplier%", MultiplierManager.recycleMultiplier.toString()).replace("%new_multiplier%", (MultiplierManager.recycleMultiplier * session.multiplier).toString().slice(0..2)),
+                    "New Multiplier: %new_multiplier%x".replace("%multiplier%", MultiplierManager.recycleMultiplier.toString()).replace("%new_multiplier%", (MultiplierManager.recycleMultiplier * session.multiplier).toString().slice(0..2))),
+                true
             )
+            val meta = recycleItem.itemMeta ?: return
+            meta.itemFlags += ItemFlag.HIDE_ATTRIBUTES
+            recycleItem.itemMeta = meta
             inventory.setItem(49, recycleItem)
         }
 
@@ -79,7 +87,7 @@ class MomentumMenu(private val plugin: Main) {
                 isClaimed -> ItemUtil.create(Material.GLASS_PANE, plugin.configLoader.tierClaimedName.replace("%tier_id%", tier.id.toString()).replace("%tier_name%", tier.name), plugin.configLoader.tierClaimedLore)
                 isUnlocked -> ItemUtil.create(Material.DIAMOND, plugin.configLoader.tierClaimableName.replace("%tier_id%", tier.id.toString()).replace("%tier_name%", tier.name), plugin.configLoader.tierClaimableLore.flatMap { if (it.contains("%rewards%")) rewardsLore else listOf(it) }, glowing = true)
                 else -> {
-                    val timeLeft = tier.unlockAfterMinutes - session.totalPlayMinutes
+                    val timeLeft = tier.unlockAfterMinutes - (session.totalPlayMinutes - session.lastRecycle)
                     ItemUtil.create(Material.GRAY_DYE, plugin.configLoader.tierLockedName.replace("%tier_id%", tier.id.toString()).replace("%tier_name%", tier.name), plugin.configLoader.tierLockedLore.flatMap { if (it.contains("%rewards%")) rewardsLore else listOf(it) }.map { it.replace("%time_left%", timeLeft.toString()) })
                 }
             }

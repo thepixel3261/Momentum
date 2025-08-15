@@ -80,7 +80,9 @@ class RewardManager(private val economy: Economy?, val plugin: Main) {
             is RewardAction.GiveXP -> player.giveExp(action.amount * multiplier.toInt())
             is RewardAction.RunCommand -> Bukkit.dispatchCommand(
                 Bukkit.getConsoleSender(),
-                action.command.replace("%player%", player.name).replace("%amount%", (action.amount * multiplier).toString())
+                action.command.replace("%player%", player.name)
+                    .replace("%amount%", (action.amount * multiplier).toString())
+                    .replace("%amountR%", (action.amount * multiplier).toInt().toString())
             )
             is RewardAction.PlaySound -> player.playSound(player.location, Sound.valueOf(action.sound.uppercase()), action.volume, action.pitch)
             is RewardAction.ShowParticle -> player.spawnParticle(Particle.valueOf(action.particle.uppercase()), player.location, action.count)

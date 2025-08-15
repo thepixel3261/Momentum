@@ -43,8 +43,4 @@ object MultiplierManager {
         this.unlockedTiers = mutableSetOf()
         return this
     }
-
-    fun setRecycleMultiplier(value: Double) {
-        recycleMultiplier = value
-    }
 }

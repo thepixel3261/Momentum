@@ -42,6 +42,7 @@ class VersionUtil (val plugin: Main) : Listener {
 
     private fun checkForUpdates() {
         if (latestVersion != null) return
+        if (plugin.description.version.endsWith("-SNAPSHOT")) return
 
         try {
             val url = URL(gitHubReleasesURL)

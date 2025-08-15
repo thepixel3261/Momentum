@@ -29,6 +29,7 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
     var afkTimeoutMinutes: Int = 5
     var allowClaimAll: Boolean = true
     var allowIndividualClaim: Boolean = true
+    var allowRecycle: Boolean = true
 
     var lang: String = "en_US"
 
@@ -45,6 +46,8 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
     var playtimeItemLore: List<String> = emptyList()
     var claimAllItemName: String = ""
     var claimAllItemLore: List<String> = emptyList()
+    var recycleItemName: String = ""
+    var recycleItemLore: List<String> = emptyList()
     var tierLockedName: String = ""
     var tierLockedLore: List<String> = emptyList()
     var tierClaimableName: String = ""
@@ -71,7 +74,8 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
         lang = config.getString("language", "en_US")
         allowClaimAll = config.getBoolean("claim.allowClaimAll", true)
         allowIndividualClaim = config.getBoolean("claim.allowIndividualClaim", true)
-        MultiplierManager.setRecycleMultiplier(config.getDouble("claim.recycleMultiplier", 1.0))
+        allowRecycle = config.getBoolean("claim.recycle.enabled", true)
+        MultiplierManager.recycleMultiplier = (config.getDouble("claim.recycle.recycleMultiplier", 1.0))
 
         redisEnabled = config.getBoolean("redis.enabled", false)
         redisHost = config.getString("redis.host", "localhost") ?: "localhost"
@@ -81,16 +85,18 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
         redisSsl = config.getBoolean("redis.ssl", false)
         redisSslVerifyPeer = config.getBoolean("redis.ssl_verify_peer", true)
 
-        guiTitle = config.getString("gui.title", "Session Rewards") ?: "Session Rewards"
-        playtimeItemName = config.getString("gui.playtime_item.name", "") ?: ""
+        guiTitle = config.getString("gui.title", "Session Rewards")
+        playtimeItemName = config.getString("gui.playtime_item.name", "")
         playtimeItemLore = config.getStringList("gui.playtime_item.lore")
-        claimAllItemName = config.getString("gui.claim_all_item.name", "") ?: ""
+        claimAllItemName = config.getString("gui.claim_all_item.name", "")
         claimAllItemLore = config.getStringList("gui.claim_all_item.lore")
-        tierLockedName = config.getString("gui.tier_item.locked.name", "") ?: ""
+        recycleItemName = config.getString("gui.recycle_item.name", "")
+        recycleItemLore = config.getStringList("gui.recycle_item.lore")
+        tierLockedName = config.getString("gui.tier_item.locked.name", "")
         tierLockedLore = config.getStringList("gui.tier_item.locked.lore")
-        tierClaimableName = config.getString("gui.tier_item.claimable.name", "") ?: ""
+        tierClaimableName = config.getString("gui.tier_item.claimable.name", "")
         tierClaimableLore = config.getStringList("gui.tier_item.claimable.lore")
-        tierClaimedName = config.getString("gui.tier_item.claimed.name", "") ?: ""
+        tierClaimedName = config.getString("gui.tier_item.claimed.name", "")
         tierClaimedLore = config.getStringList("gui.tier_item.claimed.lore")
     }
 

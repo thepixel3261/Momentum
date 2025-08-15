@@ -15,3 +15,8 @@ claim:
   no-claimable-tiers: "[Momentum] Sie haben keine Belohnungen zu beanspruchen."
   all-success: "[Momentum] Sie haben alle verfügbaren Belohnungen eingefordert!"
   new-tier-unlocked: "[Momentum] Du hast eine neue Belohnungsstufe freigeschaltet!"
+  recycle-success: "[Momentum] Sie haben Ihre Belohnungen erneuert."
+
+placeholder:
+  all-claimed: "Alle beansprucht"
+  ready: "Bereit"

@@ -15,6 +15,7 @@
 package de.thepixel3261.momentum.gui
 
 import de.thepixel3261.momentum.Main
+import de.thepixel3261.momentum.lang.LanguageParser.translate
 import de.thepixel3261.momentum.session.MultiplierManager.recycle
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -36,10 +37,12 @@ class GuiListener(private val plugin: Main) : Listener {
         plugin.rewardManager.tiers.forEach {tier ->
             rewardTiers += tier.id
         }
-        if (session.claimedTiers.containsAll(rewardTiers)) {
+        if (session.claimedTiers.containsAll(rewardTiers) && plugin.configLoader.allowRecycle) {
             if (event.slot == 49) {
                 session.recycle()
                 player.closeInventory()
+                player.sendMessage("%lang_claim.recycle-success%".translate())
+                return
             }
         }
 
