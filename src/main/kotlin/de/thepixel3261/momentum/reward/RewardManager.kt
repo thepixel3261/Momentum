@@ -14,6 +14,8 @@
 
 package de.thepixel3261.momentum.reward
 
+import de.thepixel3261.momentum.Main
+import de.thepixel3261.momentum.lang.LanguageParser.translate
 import de.thepixel3261.momentum.session.SessionManager
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
@@ -21,22 +23,34 @@ import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 
-class RewardManager(private val economy: Economy?) {
+class RewardManager(private val economy: Economy?, val plugin: Main) {
     lateinit var sessionManager: SessionManager
     val tiers = mutableListOf<RewardTier>()
+    var claimedTiers30 = 0
+    var claimedTiers = 0
+    var executedActions30 = 0
+    var executedActions = 0
 
-    fun claimTier(player: Player, tierId: Int) {
+    fun claimTier(player: Player, tierId: Int, claimAll: Boolean = false) {
+        claimedTiers30++
+        claimedTiers++
+
+        if (!plugin.configLoader.allowIndividualClaim && !claimAll) {
+            player.sendMessage("%lang_claim.individual-claim-disabled%".translate())
+            return
+        }
+
         val session = sessionManager.getSession(player) ?: return
         val tier = tiers.find { it.id == tierId } ?: return
 
         if (!session.unlockedTiers.contains(tierId) || session.claimedTiers.contains(tierId)) {
-            player.sendMessage("You can't claim this tier.")
+            player.sendMessage("%lang_claim.cannot-claim%".translate())
             return
         }
 
         tier.actions.forEach { action -> executeAction(player, action) }
         session.claimedTiers.add(tierId)
-        player.sendMessage("You've claimed the reward for tier $tierId!")
+        player.sendMessage("%lang_claim.success%".translate().replace("%tier_name%", tier.name))
     }
 
     fun claimAllTiers(player: Player) {
@@ -44,23 +58,31 @@ class RewardManager(private val economy: Economy?) {
         val claimableTiers = tiers.filter { session.unlockedTiers.contains(it.id) && !session.claimedTiers.contains(it.id) }
 
         if (claimableTiers.isEmpty()) {
-            player.sendMessage("You have no rewards to claim.")
+            player.sendMessage("%lang_claim.no-claimable-tiers%".translate())
             return
         }
 
         claimableTiers.forEach { tier ->
-            claimTier(player, tier.id)
+            claimTier(player, tier.id, true)
         }
-        player.sendMessage("You've claimed all available rewards!")
+        player.sendMessage("%lang_claim.all-success%".translate())
     }
 
     private fun executeAction(player: Player, action: RewardAction) {
+        executedActions++
+        executedActions30++
+
+        val session = sessionManager.getSession(player) ?: sessionManager.startSession(player)
+        val multiplier = session.multiplier
+
         when (action) {
-            is RewardAction.GiveMoney -> economy?.depositPlayer(player, action.amount)
-            is RewardAction.GiveXP -> player.giveExp(action.amount)
+            is RewardAction.GiveMoney -> economy?.depositPlayer(player, action.amount * multiplier)
+            is RewardAction.GiveXP -> player.giveExp(action.amount * multiplier.toInt())
             is RewardAction.RunCommand -> Bukkit.dispatchCommand(
                 Bukkit.getConsoleSender(),
                 action.command.replace("%player%", player.name)
+                    .replace("%amount%", (action.amount * multiplier).toString())
+                    .replace("%amountR%", (action.amount * multiplier).toInt().toString())
             )
             is RewardAction.PlaySound -> player.playSound(player.location, Sound.valueOf(action.sound.uppercase()), action.volume, action.pitch)
             is RewardAction.ShowParticle -> player.spawnParticle(Particle.valueOf(action.particle.uppercase()), player.location, action.count)

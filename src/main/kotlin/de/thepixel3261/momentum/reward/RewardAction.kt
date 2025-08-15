@@ -20,7 +20,7 @@ sealed class RewardAction {
 
     data class GiveMoney(val amount: Double, override val visible: Boolean, override val lore: List<String>?) : RewardAction()
     data class GiveXP(val amount: Int, override val visible: Boolean, override val lore: List<String>?) : RewardAction()
-    data class RunCommand(val command: String, override val visible: Boolean, override val lore: List<String>?) : RewardAction()
+    data class RunCommand(val command: String, val amount: Double, override val visible: Boolean, override val lore: List<String>?) : RewardAction()
     data class PlaySound(val sound: String, val volume: Float, val pitch: Float, override val visible: Boolean, override val lore: List<String>?) : RewardAction()
     data class ShowParticle(val particle: String, val count: Int, override val visible: Boolean, override val lore: List<String>?) : RewardAction()
 }

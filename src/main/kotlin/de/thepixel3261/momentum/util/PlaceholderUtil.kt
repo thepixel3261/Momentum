@@ -16,6 +16,7 @@ package de.thepixel3261.momentum.util
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import de.thepixel3261.momentum.Main
+import de.thepixel3261.momentum.lang.LanguageParser.translate
 import org.bukkit.entity.Player
 
 class PlaceholderUtil(private val plugin: Main) : PlaceholderExpansion() {
@@ -38,9 +39,9 @@ class PlaceholderUtil(private val plugin: Main) : PlaceholderExpansion() {
 
                 return if (nextTier != null) {
                     val timeNeeded = nextTier.unlockAfterMinutes - session.totalPlayMinutes
-                    if (timeNeeded > 0) timeNeeded.toString() else "Ready!"
+                    if (timeNeeded > 0) timeNeeded.toString() else "%lang_placeholder.ready".translate()
                 } else {
-                    "All claimed!"
+                    "%lang_placeholder.all-claimed".translate()
                 }
             }
             else -> return null

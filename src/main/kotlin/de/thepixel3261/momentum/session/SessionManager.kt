@@ -15,7 +15,9 @@
 package de.thepixel3261.momentum.session
 
 import de.thepixel3261.momentum.Main
+import de.thepixel3261.momentum.lang.LanguageParser.translate
 import de.thepixel3261.momentum.reward.RewardManager
+import de.thepixel3261.momentum.session.MultiplierManager.setInitialMultiplier
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.*
@@ -24,17 +26,10 @@ class SessionManager(private val plugin: Main) {
     lateinit var rewardManager: RewardManager
     private val sessions = mutableMapOf<UUID, SessionData>()
 
-    fun startSession(player: Player, serverSwitch: SessionData?): SessionData {
+    fun startSession(player: Player, serverSwitch: SessionData? = null): SessionData {
         val session: SessionData = serverSwitch
-            ?: SessionData(
-                uuid = player.uniqueId,
-                joinTime = System.currentTimeMillis(),
-                lastActivity = System.currentTimeMillis(),
-                totalPlayMinutes = 0,
-                claimedTiers = mutableSetOf(),
-                unlockedTiers = mutableSetOf(),
-                isAfk = false
-            )
+            ?: SessionData(player.uniqueId)
+        session.setInitialMultiplier()
         sessions[player.uniqueId] = session
         return session
     }
@@ -56,9 +51,10 @@ class SessionManager(private val plugin: Main) {
                 session.totalPlayMinutes++
 
                 rewardManager.tiers.forEach { tier ->
-                    if (session.totalPlayMinutes >= tier.unlockAfterMinutes && !session.unlockedTiers.contains(tier.id)) {
+                    val playRecycle = session.totalPlayMinutes - session.lastRecycle
+                    if (playRecycle >= tier.unlockAfterMinutes && !session.unlockedTiers.contains(tier.id)) {
                         session.unlockedTiers.add(tier.id)
-                        player.sendMessage("You've unlocked a new reward tier!")
+                        player.sendMessage("%lang_claim.new-tier-unlocked%".translate())
                     }
                 }
             }
