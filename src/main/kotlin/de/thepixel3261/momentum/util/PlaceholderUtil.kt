@@ -44,6 +44,20 @@ class PlaceholderUtil(private val plugin: Main) : PlaceholderExpansion() {
                     "%lang_placeholder.all-claimed".translate()
                 }
             }
+            "multiplier" -> return session.multiplier.toString().slice(0..2)
+            "current_tier" -> {
+                val currentTier = plugin.rewardManager.tiers
+                    .filter { session.unlockedTiers.contains(it.id) }
+                    .maxByOrNull { it.unlockAfterMinutes }
+                return currentTier?.name ?: ""
+            }
+            "claimable" -> {
+                val hasClaimableTier = plugin.rewardManager.tiers.any { tier ->
+                    session.unlockedTiers.contains(tier.id) && !session.claimedTiers.contains(tier.id)
+                }
+                return hasClaimableTier.toString()
+            }
+            "recycles" -> return session.recycles.toString()
             else -> return null
         }
     }

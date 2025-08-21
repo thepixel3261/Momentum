@@ -21,9 +21,10 @@ data class SessionData(
     var joinTime: Long = System.currentTimeMillis(),
     var lastActivity: Long = System.currentTimeMillis(),
     var totalPlayMinutes: Int = 0,
-    var claimedTiers: MutableSet<Int> = mutableSetOf<Int>(),
-    var unlockedTiers: MutableSet<Int> = mutableSetOf<Int>(),
+    var claimedTiers: MutableSet<Int> = mutableSetOf(),
+    var unlockedTiers: MutableSet<Int> = mutableSetOf(),
     var isAfk: Boolean = false,
     var multiplier: Double = 1.0,
-    var lastRecycle: Int = 0 // Playtime-Minutes
+    var lastRecycle: Int = 0, // Playtime-Minutes
+    var recycles: Int = 0
 )
