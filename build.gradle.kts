@@ -17,13 +17,15 @@ plugins {
 }
 
 group = "de.thepixel3261"
-version = File("core/src/main/resources/plugin.yml").readText(Charsets.UTF_8).substringAfter("version: '").substringBefore("'")
+version = "1.3.0-SNAPSHOT"
 
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
 
     repositories {
         mavenCentral()
+        maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+        maven("https://oss.sonatype.org/content/groups/public/")
     }
 
     java {

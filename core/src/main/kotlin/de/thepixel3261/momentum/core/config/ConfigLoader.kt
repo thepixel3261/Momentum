@@ -136,7 +136,7 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
                         visible,
                         lore
                     )
-                    else -> RewardAction.Custom(type.lowercase(), actionMap, visible, lore)
+                    else -> RewardAction.Custom(type.lowercase(), actionMap as MutableMap<String, Any>, visible, lore)
                 }
             }
 
