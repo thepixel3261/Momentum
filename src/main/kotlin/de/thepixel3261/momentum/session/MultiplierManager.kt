@@ -42,6 +42,7 @@ object MultiplierManager {
         recycles++
         recycles30++
 
+        this.recycles++
         this.lastRecycle = this.totalPlayMinutes
         this.addMultiplier(recycleMultiplier)
         this.claimedTiers = mutableSetOf()
