@@ -4,8 +4,8 @@ afk:
   no-more-afk: "[Momentum] Du bist nicht mehr AFK."
 
 command:
-  no-permission: "[Momentum] Du hast keine Berechtigung diesen Command auszuführen."
-  needs-player: "[Momentum] Nur Spieler können diesen Command nutzen."
+  no-permission: "[Momentum] Du hast keine Berechtigung diesen Befehl auszuführen."
+  needs-player: "[Momentum] Nur Spieler können diesen Befehl nutzen."
   reloaded: "[Momentum] Die Konfiguration(en) wurden neu geladen."
 
 claim:

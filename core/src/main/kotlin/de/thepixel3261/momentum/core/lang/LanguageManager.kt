@@ -18,11 +18,13 @@ package de.thepixel3261.momentum.core.lang
 import de.thepixel3261.momentum.core.Main
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 
-class LanguageManager (val plugin: Main) {
+class LanguageManager(val plugin: Main) {
     private var lang: String = plugin.configLoader.lang
-    var langMap: HashMap<String, String> = HashMap()
+    var langMap: MutableMap<String, String> = ConcurrentHashMap()
     val langDir = File(plugin.dataFolder, "/languages")
+
     init {
         lang = plugin.configLoader.lang
         LanguageParser.init(this)
@@ -63,14 +65,13 @@ class LanguageManager (val plugin: Main) {
     }
 
     fun saveDefaultLangs() {
-        val enLangFile = File(langDir, "en_US.yml")
-        if (!enLangFile.exists()) {
-            plugin.saveResource("languages/en_US.yml", false)
-        }
+        val langFiles = listOf("en_US.yml", "de_DE.yml", "es_ES.yml", "fr_FR.yml", "pl_PL.yml", "pt_BR.yml")
 
-        val deLangFile = File(langDir, "de_DE.yml")
-        if (!deLangFile.exists()) {
-            plugin.saveResource("languages/de_DE.yml", false)
+        for (lang in langFiles) {
+            val langFile = File(langDir, lang)
+            if (!langFile.exists()) {
+                plugin.saveResource("languages/$lang", false)
+            }
         }
     }
 }

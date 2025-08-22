@@ -1,5 +1,5 @@
 afkTimeoutMinutes: 5
-lang: "en_US"
+language: "en_US"
 claim:
   allowClaimAll: true
   allowIndividualClaim: true

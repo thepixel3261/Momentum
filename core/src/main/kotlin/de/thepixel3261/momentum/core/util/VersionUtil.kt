@@ -26,10 +26,10 @@ import org.bukkit.event.player.PlayerJoinEvent
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 import java.util.*
 
-class VersionUtil (val plugin: Main) : Listener {
+class VersionUtil(val plugin: Main) : Listener {
     private val version = plugin.description.version.removeSurrounding("'").removeSuffix("-SNAPSHOT")
     private val gitHubReleasesURL = "https://api.github.com/repos/thepixel3261/Momentum/releases/latest"
     private val notifiedAdmins = mutableSetOf<UUID>()
@@ -45,11 +45,11 @@ class VersionUtil (val plugin: Main) : Listener {
         if (plugin.description.version.endsWith("-SNAPSHOT")) return
 
         try {
-            val url = URL(gitHubReleasesURL)
+            val url = URI(gitHubReleasesURL).toURL()
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
             connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
-                
+
             if (connection.responseCode == 200) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream))
                 val response = reader.readText()
@@ -58,7 +58,7 @@ class VersionUtil (val plugin: Main) : Listener {
 
                 latestVersion = latestTag
                 updateMessage = getUpdateMessage()
-            } else{
+            } else {
                 latestVersion = "Could not check for updates"
             }
         } catch (e: Exception) {
@@ -80,12 +80,16 @@ class VersionUtil (val plugin: Main) : Listener {
         val modrinthLink = Component.text()
             .content("Click here to download latest version (Modrinth)\n")
             .color(net.kyori.adventure.text.format.NamedTextColor.AQUA)
-            .clickEvent(ClickEvent.openUrl(
-                "https://modrinth.com/plugin/momentum-rewards/version/${latestVersion!!}"
-            ))
-            .hoverEvent(HoverEvent.showText(
-                Component.text("Open Modrinth")
-            ))
+            .clickEvent(
+                ClickEvent.openUrl(
+                    "https://modrinth.com/plugin/momentum-rewards/version/${latestVersion!!}"
+                )
+            )
+            .hoverEvent(
+                HoverEvent.showText(
+                    Component.text("Open Modrinth")
+                )
+            )
             .build()
 
         // Create and send GitHub link
@@ -94,12 +98,14 @@ class VersionUtil (val plugin: Main) : Listener {
             .color(net.kyori.adventure.text.format.NamedTextColor.AQUA)
             .clickEvent(
                 ClickEvent.openUrl(
-                "https://github.com/thepixel3261/Momentum/releases/latest"
-            ))
+                    "https://github.com/thepixel3261/Momentum/releases/latest"
+                )
+            )
             .hoverEvent(
                 HoverEvent.showText(
-                Component.text("Open GitHub")
-            ))
+                    Component.text("Open GitHub")
+                )
+            )
             .build()
 
         // Send both links
@@ -113,7 +119,7 @@ class VersionUtil (val plugin: Main) : Listener {
     fun getUpdateMessage(): String? {
         val newVersion = latestVersion ?: return null
         if (!isNewerVersion(newVersion)) return null
-        
+
         val currentParts = version.split('.').map { it.toInt() }
         val newParts = newVersion.split('.').map { it.toInt() }
 
@@ -126,21 +132,23 @@ class VersionUtil (val plugin: Main) : Listener {
                 This update contains breaking changes. Please read the changelog before updating.
                 """.trimIndent()
             }
+
             newParts[1] > currentParts[1] -> { // Minor update
                 "[§aMomentum§f]\nA new version (§3$newVersion§f) is available! New features and improvements — update recommended."
             }
+
             else -> { // Patch update
                 "[§aMomentum§f]\nA new patch (§3$newVersion§f) is available! Fixes bugs and improves stability."
             }
         }
     }
-    
+
     private fun isNewerVersion(newVersion: String): Boolean {
         if (newVersion == version) return false
-        
+
         val currentParts = version.split('.').map { it.toInt() }
         val newParts = newVersion.split('.').map { it.toInt() }
-        
+
         return (0..2).any { i ->
             newParts.getOrNull(i)?.let { it > currentParts.getOrElse(i) { 0 } } == true
         }

@@ -34,7 +34,7 @@ class GuiListener(private val plugin: Main) : Listener {
         // Recycle button
         val session = plugin.sessionManager.getSession(player) ?: plugin.sessionManager.startSession(player)
         val rewardTiers: MutableSet<Int> = mutableSetOf()
-        plugin.rewardManager.tiers.forEach {tier ->
+        plugin.rewardManager.tiers.forEach { tier ->
             rewardTiers += tier.id
         }
         if (session.claimedTiers.containsAll(rewardTiers) && plugin.configLoader.allowRecycle) {
