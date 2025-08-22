@@ -1,4 +1,6 @@
 # Configuration for reward tiers in Momentum.
+# Join the discord for more reward types using my addon: https://discord.gg/J8H8qJG3qw
+
 tiers:
   Tier 1: # also tier name
     id: 1

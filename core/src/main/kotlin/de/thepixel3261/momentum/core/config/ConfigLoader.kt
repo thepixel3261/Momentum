@@ -120,9 +120,20 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
                 val lore = actionMap["lore"] as? List<String>
 
                 when (type.lowercase()) {
-                    "money" -> RewardAction.GiveMoney((actionMap["amount"] as? Number)?.toDouble() ?: 0.0, visible, lore)
+                    "money" -> RewardAction.GiveMoney(
+                        (actionMap["amount"] as? Number)?.toDouble() ?: 0.0,
+                        visible,
+                        lore
+                    )
+
                     "xp" -> RewardAction.GiveXP((actionMap["amount"] as? Int) ?: 0, visible, lore)
-                    "command" -> RewardAction.RunCommand(actionMap["command"] as? String ?: "", actionMap["amount"] as? Double ?: 1.0,visible, lore)
+                    "command" -> RewardAction.RunCommand(
+                        actionMap["command"] as? String ?: "",
+                        actionMap["amount"] as? Double ?: 1.0,
+                        visible,
+                        lore
+                    )
+
                     "sound" -> RewardAction.PlaySound(
                         actionMap["sound"] as? String ?: "",
                         (actionMap["volume"] as? Number)?.toFloat() ?: 1.0f,
@@ -130,17 +141,31 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
                         visible,
                         lore
                     )
+
                     "particle" -> RewardAction.ShowParticle(
                         actionMap["particle"] as? String ?: "",
                         (actionMap["count"] as? Int) ?: 0,
                         visible,
                         lore
                     )
-                    else -> RewardAction.Custom(type.lowercase(), actionMap as MutableMap<String, Any>, visible, lore)
+
+                    else -> {
+                        RewardAction.Custom(type.lowercase(), actionMap as MutableMap<String, Any>, visible, lore)
+                    }
                 }
             }
 
-            rewardManager.tiers.add(RewardTier(tierName, id, unlockAfterMinutes, rewardActions, materialLocked, materialUnlocked, materialClaimed))
+            rewardManager.tiers.add(
+                RewardTier(
+                    tierName,
+                    id,
+                    unlockAfterMinutes,
+                    rewardActions,
+                    materialLocked,
+                    materialUnlocked,
+                    materialClaimed
+                )
+            )
         }
     }
 }

@@ -16,9 +16,9 @@ package de.thepixel3261.momentum.core.afk
 
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerMoveEvent
-import org.bukkit.event.player.AsyncPlayerChatEvent
 
 class AfkListener(private val afkManager: AfkManager) : Listener {
 

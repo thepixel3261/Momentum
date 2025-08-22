@@ -16,11 +16,12 @@
 package de.thepixel3261.momentum.core.util
 
 import de.thepixel3261.momentum.core.Main
+import de.thepixel3261.momentum.core.api.CoreRewardActionRegistry
 import de.thepixel3261.momentum.core.session.MultiplierManager
 import org.bstats.bukkit.Metrics
+import org.bstats.charts.DrilldownPie
 import org.bstats.charts.SimplePie
 import org.bstats.charts.SingleLineChart
-import org.bstats.charts.DrilldownPie
 
 class BstatsUtil(val plugin: Main) {
     private val bStatsId = 26832
@@ -74,6 +75,10 @@ class BstatsUtil(val plugin: Main) {
         metrics.addCustomChart(SingleLineChart("recycles") {
             val amount = MultiplierManager.recycles
             return@SingleLineChart amount
+        })
+        metrics.addCustomChart(SingleLineChart("api_servers") {
+            val bool = CoreRewardActionRegistry().executors.isNotEmpty()
+            return@SingleLineChart if (bool) 1 else 0
         })
     }
 }

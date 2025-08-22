@@ -1,6 +1,6 @@
 package de.thepixel3261.momentum.api
 
-import java.util.UUID
+import java.util.*
 
 /**
  * Root service exposed by Momentum for other plugins.
@@ -76,7 +76,8 @@ data class RewardActionContext(
 
 /** Static accessor utility to fetch the service from Bukkit's ServicesManager. */
 object MomentumAPI {
-    @Volatile private var instance: MomentumService? = null
+    @Volatile
+    private var instance: MomentumService? = null
 
     fun get(): MomentumService? = instance
 

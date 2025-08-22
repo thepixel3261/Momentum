@@ -31,7 +31,8 @@ object MultiplierManager {
         var highestMultiplier: Double = this.multiplier
         player.effectivePermissions.forEach { permission ->
             if (permission.permission.startsWith("momentum.multiplier", ignoreCase = true) && permission.value) {
-                val value: Double = permission.permission.substringAfterLast(".").replace("_", ".").toDoubleOrNull() ?: 1.0
+                val value: Double =
+                    permission.permission.substringAfterLast(".").replace("_", ".").toDoubleOrNull() ?: 1.0
                 if (value > highestMultiplier) highestMultiplier = value
             }
         }

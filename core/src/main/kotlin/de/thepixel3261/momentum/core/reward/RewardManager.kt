@@ -14,17 +14,20 @@
 
 package de.thepixel3261.momentum.core.reward
 
-import de.thepixel3261.momentum.core.Main
-import de.thepixel3261.momentum.core.lang.LanguageParser.translate
-import de.thepixel3261.momentum.core.session.SessionManager
 import de.thepixel3261.momentum.api.MomentumAPI
 import de.thepixel3261.momentum.api.RewardActionContext
 import de.thepixel3261.momentum.api.SessionSnapshot
+import de.thepixel3261.momentum.core.Main
+import de.thepixel3261.momentum.core.lang.LanguageParser.translate
+import de.thepixel3261.momentum.core.session.SessionManager
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.Player
+import org.bukkit.plugin.Plugin
+import java.lang.reflect.Method
+import java.util.function.Consumer
 
 class RewardManager(private val economy: Economy?, val plugin: Main) {
     lateinit var sessionManager: SessionManager
@@ -58,7 +61,8 @@ class RewardManager(private val economy: Economy?, val plugin: Main) {
 
     fun claimAllTiers(player: Player) {
         val session = sessionManager.getSession(player) ?: return
-        val claimableTiers = tiers.filter { session.unlockedTiers.contains(it.id) && !session.claimedTiers.contains(it.id) }
+        val claimableTiers =
+            tiers.filter { session.unlockedTiers.contains(it.id) && !session.claimedTiers.contains(it.id) }
 
         if (claimableTiers.isEmpty()) {
             player.sendMessage("%lang_claim.no-claimable-tiers%".translate())
@@ -98,30 +102,120 @@ class RewardManager(private val economy: Economy?, val plugin: Main) {
         }
 
         when (action) {
-            is RewardAction.GiveMoney -> if (!tryExecuteById("money", mapOf("amount" to action.amount), action.visible, action.lore)) {
-                economy?.depositPlayer(player, action.amount * multiplier)
-            }
-            is RewardAction.GiveXP -> if (!tryExecuteById("xp", mapOf("amount" to action.amount), action.visible, action.lore)) {
-                player.giveExp((action.amount * multiplier).toInt())
-            }
-            is RewardAction.RunCommand -> if (!tryExecuteById("command", mapOf("command" to action.command, "amount" to action.amount), action.visible, action.lore)) {
-                Bukkit.dispatchCommand(
-                Bukkit.getConsoleSender(),
-                action.command.replace("%player%", player.name)
-                    .replace("%amount%", (action.amount * multiplier).toString())
-                    .replace("%amountR%", (action.amount * multiplier).toInt().toString())
+            is RewardAction.GiveMoney -> if (!tryExecuteById(
+                    "money",
+                    mapOf("amount" to action.amount),
+                    action.visible,
+                    action.lore
                 )
+            ) {
+                scheduleGlobal {
+                    economy?.depositPlayer(player, action.amount * multiplier)
+                }
             }
-            is RewardAction.PlaySound -> if (!tryExecuteById("sound", mapOf("sound" to action.sound, "volume" to action.volume, "pitch" to action.pitch), action.visible, action.lore)) {
-                player.playSound(player.location, Sound.valueOf(action.sound.uppercase()), action.volume, action.pitch)
+
+            is RewardAction.GiveXP -> if (!tryExecuteById(
+                    "xp",
+                    mapOf("amount" to action.amount),
+                    action.visible,
+                    action.lore
+                )
+            ) {
+                scheduleOnEntity(player) {
+                    player.giveExp((action.amount * multiplier).toInt())
+                }
             }
-            is RewardAction.ShowParticle -> if (!tryExecuteById("particle", mapOf("particle" to action.particle, "count" to action.count), action.visible, action.lore)) {
-                player.spawnParticle(Particle.valueOf(action.particle.uppercase()), player.location, action.count)
+
+            is RewardAction.RunCommand -> if (!tryExecuteById(
+                    "command",
+                    mapOf("command" to action.command, "amount" to action.amount),
+                    action.visible,
+                    action.lore
+                )
+            ) {
+                scheduleGlobal {
+                    Bukkit.dispatchCommand(
+                        Bukkit.getConsoleSender(),
+                        action.command.replace("%player%", player.name)
+                            .replace("%amount%", (action.amount * multiplier).toString())
+                            .replace("%amountR%", (action.amount * multiplier).toInt().toString())
+                    )
+                }
             }
+
+            is RewardAction.PlaySound -> if (!tryExecuteById(
+                    "sound",
+                    mapOf("sound" to action.sound, "volume" to action.volume, "pitch" to action.pitch),
+                    action.visible,
+                    action.lore
+                )
+            ) {
+                scheduleOnEntity(player) {
+                    player.playSound(
+                        player.location,
+                        Sound.valueOf(action.sound.uppercase()),
+                        action.volume,
+                        action.pitch
+                    )
+                }
+            }
+
+            is RewardAction.ShowParticle -> if (!tryExecuteById(
+                    "particle",
+                    mapOf("particle" to action.particle, "count" to action.count),
+                    action.visible,
+                    action.lore
+                )
+            ) {
+                scheduleOnEntity(player) {
+                    player.spawnParticle(Particle.valueOf(action.particle.uppercase()), player.location, action.count)
+                }
+            }
+
             is RewardAction.Custom -> {
                 if (!tryExecuteById(action.id, action.params, action.visible, action.lore)) {
                     plugin.logger.warning("No executor registered for custom reward action id '${action.id}'. Skipping.")
                 }
+            }
+        }
+    }
+
+    private fun scheduleOnEntity(player: Player, task: () -> Unit) {
+        try {
+            val getSchedulerMethod: Method = player.javaClass.getMethod("getScheduler")
+            val scheduler = getSchedulerMethod.invoke(player)
+            val runMethod: Method = scheduler.javaClass.getMethod(
+                "run",
+                Plugin::class.java,
+                Runnable::class.java,
+                Runnable::class.java,
+                java.lang.Long.TYPE
+            )
+            runMethod.invoke(scheduler, plugin, Runnable { task() }, null, 0L)
+        } catch (e: Throwable) {
+            if (Bukkit.isPrimaryThread()) {
+                task()
+            } else {
+                Bukkit.getScheduler().runTask(plugin, Runnable { task() })
+            }
+        }
+    }
+
+    private fun scheduleGlobal(task: () -> Unit) {
+        try {
+            val getGlobalRegionSchedulerMethod: Method = Bukkit::class.java.getMethod("getGlobalRegionScheduler")
+            val globalRegionScheduler = getGlobalRegionSchedulerMethod.invoke(null)
+            val runMethod: Method = globalRegionScheduler.javaClass.getMethod(
+                "run",
+                Plugin::class.java,
+                Consumer::class.java
+            )
+            runMethod.invoke(globalRegionScheduler, plugin, java.util.function.Consumer { _: Any -> task() })
+        } catch (e: Throwable) {
+            if (Bukkit.isPrimaryThread()) {
+                task()
+            } else {
+                Bukkit.getScheduler().runTask(plugin, Runnable { task() })
             }
         }
     }

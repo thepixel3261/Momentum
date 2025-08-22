@@ -48,12 +48,13 @@ class MomentumCommand(private val plugin: Main, private val momentumMenu: Moment
                 sender.sendMessage("%lang_command.reloaded%".translate())
                 plugin.logger.info(plugin.startUpLog().joinToString("\n"))
             }
+
             "info" -> {
                 val session = plugin.sessionManager.getSession(sender) ?: return true
                 val currentTier = plugin.rewardManager.tiers
                     .filter { session.unlockedTiers.contains(it.id) }
                     .maxByOrNull { it.unlockAfterMinutes }
-                
+
                 sender.sendMessage("&a=== [Momentum Info] ===".translate())
                 sender.sendMessage("&7Multiplier: &f${session.multiplier}".translate())
                 sender.sendMessage("&7Playtime: &f${session.totalPlayMinutes} minutes".translate())
@@ -61,13 +62,19 @@ class MomentumCommand(private val plugin: Main, private val momentumMenu: Moment
                 sender.sendMessage("&7Current Tier: &f${currentTier?.name ?: "None"}".translate())
                 return true
             }
+
             else -> momentumMenu.open(sender)
         }
 
         return true
     }
 
-    override fun onTabComplete(sender: CommandSender?, command: Command?, label: String?, args: Array<out String>?): MutableList<String> {
+    override fun onTabComplete(
+        sender: CommandSender?,
+        command: Command?,
+        label: String?,
+        args: Array<out String>?
+    ): MutableList<String> {
         if (sender !is Player) return mutableListOf()
         if (args?.size != 1) return mutableListOf()
         val completions = mutableListOf("info")

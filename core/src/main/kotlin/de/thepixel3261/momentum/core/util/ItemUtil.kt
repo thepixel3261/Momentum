@@ -21,7 +21,12 @@ import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 
 object ItemUtil {
-    fun create(material: Material, name: String, lore: List<String> = emptyList(), glowing: Boolean = false): ItemStack {
+    fun create(
+        material: Material,
+        name: String,
+        lore: List<String> = emptyList(),
+        glowing: Boolean = false
+    ): ItemStack {
         val item = ItemStack(material)
         val meta = item.itemMeta ?: return item
 

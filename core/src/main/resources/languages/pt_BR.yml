@@ -1,0 +1,22 @@
+# Suporta formatação de cores com '&'.
+afk:
+  now-afk: "[Momentum] Você agora está AFK."
+  no-more-afk: "[Momentum] Você não está mais AFK."
+
+command:
+  no-permission: "[Momentum] Você não tem permissão para usar este comando."
+  needs-player: "[Momentum] Apenas jogadores podem usar este comando."
+  reloaded: "[Momentum] A(s) configuração(ões) foi(foram) recarregada(s)."
+
+claim:
+  individual-claim-disabled: "[Momentum] Você deve resgatar todas as recompensas de uma vez."
+  cannot-claim: "[Momentum] Você não pode resgatar este nível."
+  success: "[Momentum] Você resgatou a recompensa do nível %tier_name%."
+  all-success: "[Momentum] Você resgatou todas as recompensas disponíveis!"
+  no-claimable-tiers: "[Momentum] Você não tem recompensas para resgatar."
+  new-tier-unlocked: "[Momentum] Você desbloqueou um novo nível de recompensa!"
+  recycle-success: "[Momentum] Você reciclou suas recompensas."
+
+placeholder:
+  all-claimed: "Tudo resgatado"
+  ready: "Pronto!"

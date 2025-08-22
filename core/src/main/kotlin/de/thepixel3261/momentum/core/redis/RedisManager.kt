@@ -23,6 +23,8 @@ import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
 import java.net.URI
 import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
@@ -31,6 +33,9 @@ import javax.net.ssl.SSLParameters
 class RedisManager(private val plugin: Main, private val configLoader: ConfigLoader) {
     var jedisPool: JedisPool? = null
     private val gson = Gson()
+    private val ioExecutor: ExecutorService = Executors.newFixedThreadPool(2) { r ->
+        Thread(r, "Momentum-Redis-IO").apply { isDaemon = true }
+    }
 
     fun connect() {
         if (!configLoader.redisEnabled) {
@@ -101,7 +106,7 @@ class RedisManager(private val plugin: Main, private val configLoader: ConfigLoa
             jedisPool!!.resource.use { jedis ->
                 jedis.ping()
             }
-            
+
             plugin.logger.info("Successfully connected to Redis${if (configLoader.redisSsl) " with SSL" else ""}.")
         } catch (e: Exception) {
             plugin.logger.severe("Failed to connect to Redis: ${e.message}")
@@ -110,78 +115,97 @@ class RedisManager(private val plugin: Main, private val configLoader: ConfigLoa
         }
     }
 
-    fun isLeaving(uuid: UUID): Boolean {
-        if (jedisPool == null) return false
-        try {
-            jedisPool!!.resource.use { jedis ->
-                return jedis.exists("momentum:leaving:$uuid")
+    fun isLeavingAsync(uuid: UUID, callback: (Boolean) -> Unit) {
+        if (jedisPool == null) {
+            callback(false); return
+        }
+        ioExecutor.submit {
+            val result = try {
+                jedisPool!!.resource.use { jedis ->
+                    jedis.exists("momentum:leaving:$uuid")
+                }
+            } catch (e: Exception) {
+                plugin.logger.severe("Redis error: ${e.message}")
+                false
             }
-        } catch (e: Exception) {
-            plugin.logger.severe("Redis error: ${e.message}")
-            return false
+            callback(result)
         }
     }
 
-    fun setLeaving(data: SessionData) {
+    fun setLeavingAsync(data: SessionData) {
         if (jedisPool == null) return
-        try {
-            jedisPool!!.resource.use { jedis ->
-                jedis.setex("momentum:leaving:${data.uuid}", 30, "true")
+        ioExecutor.submit {
+            try {
+                jedisPool!!.resource.use { jedis ->
+                    jedis.setex("momentum:leaving:${data.uuid}", 30, "true")
+                }
+            } catch (e: Exception) {
+                plugin.logger.severe("Redis error: ${e.message}")
             }
-        } catch (e: Exception) {
-            plugin.logger.severe("Redis error: ${e.message}")
+            saveSessionDataAsync(data)
         }
-        saveSessionData(data)
     }
 
-    fun clearLeaving(uuid: UUID) {
+    fun clearLeavingAsync(uuid: UUID) {
         if (jedisPool == null) return
-        try {
-            jedisPool!!.resource.use { jedis ->
-                jedis.del("momentum:leaving:$uuid")
+        ioExecutor.submit {
+            try {
+                jedisPool!!.resource.use { jedis ->
+                    jedis.del("momentum:leaving:$uuid")
+                }
+            } catch (e: Exception) {
+                plugin.logger.severe("Redis error: ${e.message}")
             }
-        } catch (e: Exception) {
-            plugin.logger.severe("Redis error: ${e.message}")
         }
     }
 
-    private fun saveSessionData(session: SessionData) {
+    private fun saveSessionDataAsync(session: SessionData) {
         if (jedisPool == null) return
-        try {
-            val json = gson.toJson(session)
-            jedisPool!!.resource.use { jedis ->
-                jedis.setex("momentum:session:${session.uuid}", 30, json)
+        ioExecutor.submit {
+            try {
+                val json = gson.toJson(session)
+                jedisPool!!.resource.use { jedis ->
+                    jedis.setex("momentum:session:${session.uuid}", 30, json)
+                }
+            } catch (e: Exception) {
+                plugin.logger.severe("Failed to save session data: ${e.message}")
             }
-        } catch (e: Exception) {
-            plugin.logger.severe("Failed to save session data: ${e.message}")
         }
     }
 
-    fun getSessionData(uuid: UUID): SessionData? {
-        if (jedisPool == null) return null
-        return try {
-            jedisPool!!.resource.use { jedis ->
-                val json = jedis.get("momentum:session:$uuid") ?: return null
-                gson.fromJson(json, SessionData::class.java)
+    fun getSessionDataAsync(uuid: UUID, callback: (SessionData?) -> Unit) {
+        if (jedisPool == null) {
+            callback(null); return
+        }
+        ioExecutor.submit {
+            val result: SessionData? = try {
+                jedisPool!!.resource.use { jedis ->
+                    val json = jedis.get("momentum:session:$uuid") ?: return@submit callback(null)
+                    gson.fromJson(json, SessionData::class.java)
+                }
+            } catch (e: Exception) {
+                plugin.logger.severe("Failed to load session data: ${e.message}")
+                null
             }
-        } catch (e: Exception) {
-            plugin.logger.severe("Failed to load session data: ${e.message}")
-            null
+            callback(result)
         }
     }
 
-    fun clearSessionData(uuid: UUID) {
+    fun clearSessionDataAsync(uuid: UUID) {
         if (jedisPool == null) return
-        try {
-            jedisPool!!.resource.use { jedis ->
-                jedis.del("momentum:session:$uuid")
+        ioExecutor.submit {
+            try {
+                jedisPool!!.resource.use { jedis ->
+                    jedis.del("momentum:session:$uuid")
+                }
+            } catch (e: Exception) {
+                plugin.logger.severe("Failed to clear session data: ${e.message}")
             }
-        } catch (e: Exception) {
-            plugin.logger.severe("Failed to clear session data: ${e.message}")
         }
     }
 
     fun disconnect() {
         jedisPool?.close()
+        ioExecutor.shutdownNow()
     }
 }

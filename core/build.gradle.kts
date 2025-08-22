@@ -13,6 +13,7 @@ repositories {
     maven("https://oss.sonatype.org/content/groups/public/")
     maven("https://jitpack.io")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+    maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
@@ -27,6 +28,7 @@ dependencies {
     implementation("org.bstats:bstats-bukkit:3.1.0")
     implementation("net.kyori:adventure-api:4.14.0")
     implementation("net.kyori:adventure-platform-bukkit:4.3.0")
+    compileOnly("dev.folia:folia-api:1.20.1-R0.1-SNAPSHOT")
 }
 
 tasks {

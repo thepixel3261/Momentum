@@ -14,8 +14,10 @@
 
 package de.thepixel3261.momentum.core
 
+import de.thepixel3261.momentum.api.MomentumAPI
 import de.thepixel3261.momentum.core.afk.AfkListener
 import de.thepixel3261.momentum.core.afk.AfkManager
+import de.thepixel3261.momentum.core.api.CoreMomentumService
 import de.thepixel3261.momentum.core.command.MomentumCommand
 import de.thepixel3261.momentum.core.config.ConfigLoader
 import de.thepixel3261.momentum.core.gui.GuiListener
@@ -29,8 +31,6 @@ import de.thepixel3261.momentum.core.session.SessionManager
 import de.thepixel3261.momentum.core.util.BstatsUtil
 import de.thepixel3261.momentum.core.util.PlaceholderUtil
 import de.thepixel3261.momentum.core.util.VersionUtil
-import de.thepixel3261.momentum.api.MomentumAPI
-import de.thepixel3261.momentum.core.api.CoreMomentumService
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
@@ -77,7 +77,7 @@ class Main : JavaPlugin() {
         redisManager.connect()
 
         // 5. Register listeners and commands
-        server.pluginManager.registerEvents(SessionListener(sessionManager, redisManager), this)
+        server.pluginManager.registerEvents(SessionListener(this, sessionManager, redisManager), this)
         server.pluginManager.registerEvents(AfkListener(afkManager), this)
         server.pluginManager.registerEvents(GuiListener(this), this)
         server.pluginManager.registerEvents(VersionUtil(this), this)
@@ -105,7 +105,7 @@ class Main : JavaPlugin() {
         Bukkit.getConsoleSender().sendMessage("%lang_test%".translate())
 
         // 9. Expose API service
-        MomentumAPI.internalSet(CoreMomentumService(this, sessionManager))
+        MomentumAPI.internalSet(CoreMomentumService(sessionManager))
     }
 
     override fun onDisable() {
