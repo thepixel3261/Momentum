@@ -1,0 +1,22 @@
+# Prend en charge la mise en forme des couleurs avec '&'.
+afk:
+  now-afk: "[Momentum] Vous êtes maintenant AFK."
+  no-more-afk: "[Momentum] Vous n'êtes plus AFK."
+
+command:
+  no-permission: "[Momentum] Vous n'avez pas la permission d'utiliser cette commande."
+  needs-player: "[Momentum] Seuls les joueurs peuvent utiliser cette commande."
+  reloaded: "[Momentum] La(les) configuration(s) a(ont) été rechargée(s)."
+
+claim:
+  individual-claim-disabled: "[Momentum] Vous devez réclamer toutes les récompenses."
+  cannot-claim: "[Momentum] Vous ne pouvez pas réclamer ce palier."
+  success: "[Momentum] Vous avez réclamé la récompense pour le palier %tier_name%."
+  all-success: "[Momentum] Vous avez réclamé toutes les récompenses disponibles !"
+  no-claimable-tiers: "[Momentum] Vous n'avez aucune récompense à réclamer."
+  new-tier-unlocked: "[Momentum] Vous avez débloqué un nouveau palier de récompense !"
+  recycle-success: "[Momentum] Vous avez recyclé vos récompenses."
+
+placeholder:
+  all-claimed: "Tout réclamé"
+  ready: "Prêt !"

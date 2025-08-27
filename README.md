@@ -20,7 +20,7 @@
 - 🎁 **Progressive Rewards** - Unlock better rewards the longer you play
 - 🔄 **Recycling System** - Reset your progress for permanent multiplier boosts
 - ⚡ **Multipliers** - Earn more with permission-based reward multipliers
-- ⏳ **Session Persistence** - Progress continues across server restarts
+- ⏳ **Session Persistence** - Progress continues across server switches (Redis enabled)
 - 💤 **AFK Detection** - Pauses timers when players are AFK
 
 ### Technical Features
@@ -74,7 +74,7 @@
 momentum.use: true  # Allows using /momentum
 momentum.reload: op  # Allows reloading the config
 
-# Multiplier permissions (grant these to players)
+# Multiplier permissions (grant these to players) (more possible, like 2_5)
 momentum.multiplier.1_0: true  # 1x (default)
 momentum.multiplier.2_0: false  # 2x multiplier
 momentum.multiplier.3_0: false  # 3x multiplier
@@ -104,7 +104,7 @@ momentum.multiplier.3_0: false  # 3x multiplier
 ## 📥 Installation
 
 ### Quick Start
-1. Download the latest release from [GitHub](https://github.com/thepixel3261/Momentum/releases) or [Modrinth](https://modrinth.com/plugin/momentum)
+1. Download the latest release from [GitHub](https://github.com/thepixel3261/Momentum/releases/latest) or [Modrinth](https://modrinth.com/plugin/momentum-rewards)
 2. Place the JAR in your server's `/plugins` folder
 3. Start your server to generate config files
 4. Configure `rewards.yml` with your desired rewards

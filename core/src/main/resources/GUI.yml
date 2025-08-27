@@ -1,0 +1,47 @@
+title: "Session Rewards (Page: %page%)"
+playtime_item:
+  material: "CLOCK"
+  name: "&eCurrent Playtime"
+  lore:
+    - "&7You have been active for:"
+    - "&a%momentum_minutes% minutes"
+page:
+  up:
+    material: "DEFAULT" # DEFAULT = Player Head with texture
+    name: "&6Page up"
+    lore:
+      - ""
+  down:
+    material: "DEFAULT" # DEFAULT = Player Head with texture
+    name: "&6Page Down"
+    lore:
+      - ""
+claim_all_item:
+  material: "CHEST"
+  name: "&bClaim All Rewards"
+  lore:
+    - "&7Click to claim all"
+    - "&7unlocked rewards!"
+recycle_item:
+  material: "FIREWORK_ROCKET"
+  name: "&9Recycle"
+  lore:
+    - "Multiply: %multiplier%"
+    - "New Multiplier: %new_multiplier%"
+tier_item:
+  locked:
+    name: "&c%tier_name% (Locked)"
+    lore:
+      - "&7Unlock in: &e%time_left% minutes"
+      - "&7Rewards:"
+      - "%rewards%"
+  claimable:
+    name: "&aTier %tier_name% (Claimable)"
+    lore:
+      - "&7Click to claim your rewards!"
+      - "&7Rewards:"
+      - "%rewards%"
+  claimed:
+    name: "&9Tier %tier_name% (Claimed)"
+    lore:
+      - "&7You have already claimed this."
