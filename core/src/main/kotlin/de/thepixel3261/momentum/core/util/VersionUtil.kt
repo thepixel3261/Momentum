@@ -42,9 +42,10 @@ class VersionUtil(val plugin: Main) : Listener {
 
     private fun checkForUpdates() {
         if (latestVersion != null) return
-        if (plugin.description.version.contains("-SNAPSHOT")) return
-        if (plugin.description.version.contains("-BETA")) return
-        if (plugin.description.version.contains("-RC")) return
+        if (plugin.description.version.contains("-SNAPSHOT", true)) return
+        if (plugin.description.version.contains("-BETA", true)) return
+        if (plugin.description.version.contains("-RC", true)) return
+        if (plugin.description.version.contains("-DEV", true)) return
 
         try {
             val url = URI(gitHubReleasesURL).toURL()
@@ -151,9 +152,11 @@ class VersionUtil(val plugin: Main) : Listener {
         val currentParts = version.split('.').map { it.toInt() }
         val newParts = newVersion.split('.').map { it.toInt() }
 
-        return (0..2).any { i ->
-            newParts.getOrNull(i)?.let { it > currentParts.getOrElse(i) { 0 } } == true
-        }
+        if (currentParts[0] > newParts[0]) return false
+        if (currentParts[1] > newParts[1] && currentParts[0] <= newParts[0]) return false
+        if (currentParts[2] > newParts[2] && currentParts[1] <= newParts[1] && currentParts[0] <= newParts[0]) return false
+
+        return true
     }
 
     @EventHandler

@@ -24,7 +24,8 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
 
-class MomentumCommand(private val plugin: Main, private val momentumMenu: MomentumMenu) : CommandExecutor, TabCompleter {
+class MomentumCommand(private val plugin: Main, private val momentumMenu: MomentumMenu) : CommandExecutor,
+    TabCompleter {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (sender !is Player) {
             sender.sendMessage("%lang_command.needs-player%".translate())
@@ -44,7 +45,7 @@ class MomentumCommand(private val plugin: Main, private val momentumMenu: Moment
                     return true
                 }
                 plugin.configLoader.load()
-                LanguageManager(plugin)
+                LanguageManager(plugin).init()
                 sender.sendMessage("%lang_command.reloaded%".translate())
                 plugin.logger.info(plugin.startUpLog().joinToString("\n"))
             }
@@ -70,9 +71,9 @@ class MomentumCommand(private val plugin: Main, private val momentumMenu: Moment
     }
 
     override fun onTabComplete(
-        sender: CommandSender?,
-        command: Command?,
-        label: String?,
+        sender: CommandSender,
+        command: Command,
+        label: String,
         args: Array<out String>?
     ): MutableList<String> {
         if (sender !is Player) return mutableListOf()

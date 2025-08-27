@@ -17,7 +17,7 @@ plugins {
 }
 
 group = "de.thepixel3261"
-version = "1.3.0-RC"
+version = "1.3.0"
 
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")

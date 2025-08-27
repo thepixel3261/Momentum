@@ -30,7 +30,7 @@ object ItemUtil {
         val item = ItemStack(material)
         val meta = item.itemMeta ?: return item
 
-        meta.displayName = ChatColor.translateAlternateColorCodes('&', name)
+        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name))
         meta.lore = lore.map { ChatColor.translateAlternateColorCodes('&', it) }
 
         if (glowing) {

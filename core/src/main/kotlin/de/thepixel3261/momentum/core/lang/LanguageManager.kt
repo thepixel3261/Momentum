@@ -25,7 +25,7 @@ class LanguageManager(val plugin: Main) {
     var langMap: MutableMap<String, String> = ConcurrentHashMap()
     val langDir = File(plugin.dataFolder, "/languages")
 
-    init {
+    fun init() {
         lang = plugin.configLoader.lang
         LanguageParser.init(this)
         try {
@@ -59,7 +59,7 @@ class LanguageManager(val plugin: Main) {
                 processSection(section.getConfigurationSection(key)!!, fullKey)
             } else {
                 // If this is a value, add it to the map
-                langMap[fullKey] = section.getString(key, "")
+                langMap[fullKey] = section.getString(key, "").toString()
             }
         }
     }

@@ -20,6 +20,7 @@ import de.thepixel3261.momentum.core.session.MultiplierManager.recycle
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
+import kotlin.math.ceil
 
 class GuiListener(private val plugin: Main) : Listener {
 
@@ -53,10 +54,28 @@ class GuiListener(private val plugin: Main) : Listener {
             return
         }
 
+        val page = (event.inventory.holder as MomentumMenuHolder).getPage()
+
+        // Paging
+        if (event.slot == 53) {
+            if (ceil(rewardTiers.size / 18.0).toInt() >= page + 1) {
+                plugin.momentumMenu.open(player, page + 1)
+                return
+            }
+        }
+        if (event.slot == 52) {
+            if (page > 1) {
+                plugin.momentumMenu.open(player, page - 1)
+                return
+            }
+        }
+
+        if (event.slot < 18 || event.slot > 35) return
+
         // Tier items
-        val tierId = plugin.momentumMenu.slots[event.slot] ?: return
+        val tierId = (event.inventory.holder as MomentumMenuHolder).getTier(event.slot) ?: return
 
         plugin.rewardManager.claimTier(player, tierId)
-        plugin.momentumMenu.open(player) // Refresh GUI
+        plugin.momentumMenu.open(player, (event.inventory.holder as MomentumMenuHolder).getPage()) // Refresh GUI
     }
 }

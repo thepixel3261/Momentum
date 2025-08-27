@@ -20,14 +20,12 @@ import de.thepixel3261.momentum.api.SessionSnapshot
 import de.thepixel3261.momentum.core.Main
 import de.thepixel3261.momentum.core.lang.LanguageParser.translate
 import de.thepixel3261.momentum.core.session.SessionManager
+import de.thepixel3261.momentum.core.util.Scheduler
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.Player
-import org.bukkit.plugin.Plugin
-import java.lang.reflect.Method
-import java.util.function.Consumer
 
 class RewardManager(private val economy: Economy?, val plugin: Main) {
     lateinit var sessionManager: SessionManager
@@ -109,7 +107,7 @@ class RewardManager(private val economy: Economy?, val plugin: Main) {
                     action.lore
                 )
             ) {
-                scheduleGlobal {
+                Scheduler.run {
                     economy?.depositPlayer(player, action.amount * multiplier)
                 }
             }
@@ -121,7 +119,7 @@ class RewardManager(private val economy: Economy?, val plugin: Main) {
                     action.lore
                 )
             ) {
-                scheduleOnEntity(player) {
+                Scheduler.run {
                     player.giveExp((action.amount * multiplier).toInt())
                 }
             }
@@ -133,7 +131,7 @@ class RewardManager(private val economy: Economy?, val plugin: Main) {
                     action.lore
                 )
             ) {
-                scheduleGlobal {
+                Scheduler.run {
                     Bukkit.dispatchCommand(
                         Bukkit.getConsoleSender(),
                         action.command.replace("%player%", player.name)
@@ -150,7 +148,7 @@ class RewardManager(private val economy: Economy?, val plugin: Main) {
                     action.lore
                 )
             ) {
-                scheduleOnEntity(player) {
+                Scheduler.run {
                     player.playSound(
                         player.location,
                         Sound.valueOf(action.sound.uppercase()),
@@ -167,7 +165,7 @@ class RewardManager(private val economy: Economy?, val plugin: Main) {
                     action.lore
                 )
             ) {
-                scheduleOnEntity(player) {
+                Scheduler.run {
                     player.spawnParticle(Particle.valueOf(action.particle.uppercase()), player.location, action.count)
                 }
             }
@@ -176,46 +174,6 @@ class RewardManager(private val economy: Economy?, val plugin: Main) {
                 if (!tryExecuteById(action.id, action.params, action.visible, action.lore)) {
                     plugin.logger.warning("No executor registered for custom reward action id '${action.id}'. Skipping.")
                 }
-            }
-        }
-    }
-
-    private fun scheduleOnEntity(player: Player, task: () -> Unit) {
-        try {
-            val getSchedulerMethod: Method = player.javaClass.getMethod("getScheduler")
-            val scheduler = getSchedulerMethod.invoke(player)
-            val runMethod: Method = scheduler.javaClass.getMethod(
-                "run",
-                Plugin::class.java,
-                Runnable::class.java,
-                Runnable::class.java,
-                java.lang.Long.TYPE
-            )
-            runMethod.invoke(scheduler, plugin, Runnable { task() }, null, 0L)
-        } catch (e: Throwable) {
-            if (Bukkit.isPrimaryThread()) {
-                task()
-            } else {
-                Bukkit.getScheduler().runTask(plugin, Runnable { task() })
-            }
-        }
-    }
-
-    private fun scheduleGlobal(task: () -> Unit) {
-        try {
-            val getGlobalRegionSchedulerMethod: Method = Bukkit::class.java.getMethod("getGlobalRegionScheduler")
-            val globalRegionScheduler = getGlobalRegionSchedulerMethod.invoke(null)
-            val runMethod: Method = globalRegionScheduler.javaClass.getMethod(
-                "run",
-                Plugin::class.java,
-                Consumer::class.java
-            )
-            runMethod.invoke(globalRegionScheduler, plugin, java.util.function.Consumer { _: Any -> task() })
-        } catch (e: Throwable) {
-            if (Bukkit.isPrimaryThread()) {
-                task()
-            } else {
-                Bukkit.getScheduler().runTask(plugin, Runnable { task() })
             }
         }
     }

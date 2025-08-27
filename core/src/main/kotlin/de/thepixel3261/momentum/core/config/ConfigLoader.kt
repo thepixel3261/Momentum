@@ -42,10 +42,13 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
     var redisSslVerifyPeer: Boolean = true
 
     var guiTitle: String = "Session Rewards"
+    var playtimeItemMaterial: String = "CLOCK"
     var playtimeItemName: String = ""
     var playtimeItemLore: List<String> = emptyList()
+    var claimAllItemMaterial: String = "BARRIER"
     var claimAllItemName: String = ""
     var claimAllItemLore: List<String> = emptyList()
+    var recycleItemMaterial: String = "BARRIER"
     var recycleItemName: String = ""
     var recycleItemLore: List<String> = emptyList()
     var tierLockedName: String = ""
@@ -54,6 +57,12 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
     var tierClaimableLore: List<String> = emptyList()
     var tierClaimedName: String = ""
     var tierClaimedLore: List<String> = emptyList()
+    var pageDownMaterial: String = "DEFAULT"
+    var pageDownName: String = ""
+    var pageDownLore: List<String> = emptyList()
+    var pageUpMaterial: String = "DEFAULT"
+    var pageUpName: String = ""
+    var pageUpLore: List<String> = emptyList()
 
     var tierCount: Int = 0
 
@@ -67,11 +76,17 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
             plugin.saveResource("rewards.yml", false)
         }
         loadRewards(YamlConfiguration.loadConfiguration(rewardsFile))
+
+        val guiConfigFile = File(plugin.dataFolder, "GUI.yml")
+        if (!guiConfigFile.exists()) {
+            plugin.saveResource("GUI.yml", false)
+        }
+        loadGUI(YamlConfiguration.loadConfiguration(guiConfigFile))
     }
 
     private fun loadMainConfig(config: FileConfiguration) {
         afkTimeoutMinutes = config.getInt("afkTimeoutMinutes", 5)
-        lang = config.getString("language", "en_US")
+        lang = config.getString("language", "en_US").toString()
         allowClaimAll = config.getBoolean("claim.allowClaimAll", true)
         allowIndividualClaim = config.getBoolean("claim.allowIndividualClaim", true)
         allowRecycle = config.getBoolean("claim.recycle.enabled", true)
@@ -80,24 +95,37 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
         redisEnabled = config.getBoolean("redis.enabled", false)
         redisHost = config.getString("redis.host", "localhost") ?: "localhost"
         redisPort = config.getInt("redis.port", 6379)
-        redisUser = config.getString("redis.user", "")
+        redisUser = config.getString("redis.user", "").toString()
         redisPassword = config.getString("redis.password", "") ?: ""
         redisSsl = config.getBoolean("redis.ssl", false)
         redisSslVerifyPeer = config.getBoolean("redis.ssl_verify_peer", true)
 
-        guiTitle = config.getString("gui.title", "Session Rewards")
-        playtimeItemName = config.getString("gui.playtime_item.name", "")
-        playtimeItemLore = config.getStringList("gui.playtime_item.lore")
-        claimAllItemName = config.getString("gui.claim_all_item.name", "")
-        claimAllItemLore = config.getStringList("gui.claim_all_item.lore")
-        recycleItemName = config.getString("gui.recycle_item.name", "")
-        recycleItemLore = config.getStringList("gui.recycle_item.lore")
-        tierLockedName = config.getString("gui.tier_item.locked.name", "")
-        tierLockedLore = config.getStringList("gui.tier_item.locked.lore")
-        tierClaimableName = config.getString("gui.tier_item.claimable.name", "")
-        tierClaimableLore = config.getStringList("gui.tier_item.claimable.lore")
-        tierClaimedName = config.getString("gui.tier_item.claimed.name", "")
-        tierClaimedLore = config.getStringList("gui.tier_item.claimed.lore")
+
+    }
+
+    private fun loadGUI(config: FileConfiguration) {
+        guiTitle = config.getString("title", "Session Rewards").toString()
+        playtimeItemMaterial = config.getString("playtime_item.material", "BARRIER").toString()
+        playtimeItemName = config.getString("playtime_item.name", "").toString()
+        playtimeItemLore = config.getStringList("playtime_item.lore")
+        claimAllItemMaterial = config.getString("claim_all_item.material", "BARRIER").toString()
+        claimAllItemName = config.getString("claim_all_item.name", "").toString()
+        claimAllItemLore = config.getStringList("claim_all_item.lore")
+        recycleItemMaterial = config.getString("recycle_item.material", "FIREWORK").toString()
+        recycleItemName = config.getString("recycle_item.name", "").toString()
+        recycleItemLore = config.getStringList("recycle_item.lore")
+        tierLockedName = config.getString("tier_item.locked.name", "").toString()
+        tierLockedLore = config.getStringList("tier_item.locked.lore")
+        tierClaimableName = config.getString("tier_item.claimable.name", "").toString()
+        tierClaimableLore = config.getStringList("tier_item.claimable.lore")
+        tierClaimedName = config.getString("tier_item.claimed.name", "").toString()
+        tierClaimedLore = config.getStringList("tier_item.claimed.lore")
+        pageDownMaterial = config.getString("page.down.material", "DEFAULT").toString()
+        pageDownName = config.getString("page.down.name", "").toString()
+        pageDownLore = config.getStringList("page.down.lore")
+        pageUpMaterial = config.getString("page.up.material", "DEFAULT").toString()
+        pageUpName = config.getString("page.up.name", "").toString()
+        pageUpLore = config.getStringList("page.up.lore")
     }
 
     private fun loadRewards(rewardsConfig: FileConfiguration) {
@@ -110,9 +138,11 @@ class ConfigLoader(private val plugin: Main, private val rewardManager: RewardMa
             val id = tierSection.getInt("id")
             val unlockAfterMinutes = tierSection.getInt("unlockAfterMinutes")
             val actionsList = tierSection.getMapList("actions")
-            val materialLocked = Material.valueOf(tierSection.getString("materialLocked", "GRAY_DYE").uppercase())
-            val materialUnlocked = Material.valueOf(tierSection.getString("material", "DIAMOND").uppercase())
-            val materialClaimed = Material.valueOf(tierSection.getString("materialClaimed", "GLASS_PANE").uppercase())
+            val materialLocked =
+                Material.valueOf(tierSection.getString("materialLocked", "GRAY_DYE").toString().uppercase())
+            val materialUnlocked = Material.valueOf(tierSection.getString("material", "DIAMOND").toString().uppercase())
+            val materialClaimed =
+                Material.valueOf(tierSection.getString("materialClaimed", "GLASS_PANE").toString().uppercase())
 
             val rewardActions = actionsList.mapNotNull { actionMap ->
                 val type = actionMap["type"] as? String ?: return@mapNotNull null

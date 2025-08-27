@@ -25,7 +25,8 @@
 name: Momentum
 main: de.thepixel3261.momentum.core.Main
 version: '${version}'
-api-version: '1.21'
+api-version: '1.20'
+folia-supported: true
 author: thepixel3261
 description: Track player sessions and unlock rewards over time.
 load: STARTUP

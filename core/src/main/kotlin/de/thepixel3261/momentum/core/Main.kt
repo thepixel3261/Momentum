@@ -23,13 +23,13 @@ import de.thepixel3261.momentum.core.config.ConfigLoader
 import de.thepixel3261.momentum.core.gui.GuiListener
 import de.thepixel3261.momentum.core.gui.MomentumMenu
 import de.thepixel3261.momentum.core.lang.LanguageManager
-import de.thepixel3261.momentum.core.lang.LanguageParser.translate
 import de.thepixel3261.momentum.core.redis.RedisManager
 import de.thepixel3261.momentum.core.reward.RewardManager
 import de.thepixel3261.momentum.core.session.SessionListener
 import de.thepixel3261.momentum.core.session.SessionManager
 import de.thepixel3261.momentum.core.util.BstatsUtil
 import de.thepixel3261.momentum.core.util.PlaceholderUtil
+import de.thepixel3261.momentum.core.util.Scheduler
 import de.thepixel3261.momentum.core.util.VersionUtil
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
@@ -81,28 +81,29 @@ class Main : JavaPlugin() {
         server.pluginManager.registerEvents(AfkListener(afkManager), this)
         server.pluginManager.registerEvents(GuiListener(this), this)
         server.pluginManager.registerEvents(VersionUtil(this), this)
-        getCommand("momentum")?.executor = MomentumCommand(this, momentumMenu)
+        getCommand("momentum")?.setExecutor(MomentumCommand(this, momentumMenu))
 
         // 6. Start tasks
+        Scheduler.init(this)
         afkManager.startAfkChecker()
         sessionManager.startRewardChecker()
 
         // 7. Register PlaceholderAPI expansion
         if (server.pluginManager.getPlugin("PlaceholderAPI") != null) {
             PlaceholderUtil(this).register()
-            placeholderAPIv = server.pluginManager.getPlugin("PlaceholderAPI").description.version
+            placeholderAPIv = server.pluginManager.getPlugin("PlaceholderAPI")!!.description.version
         }
 
-        // 8. Load languages (again because of ConfigLoader)
+        // 8. Load languages
         languageManager = LanguageManager(this)
+        languageManager.init()
+
         BstatsUtil(this)
 
         logger.info(startUpLog().joinToString("\n"))
         if (versionUtil.getUpdateMessage() != null) {
-            Bukkit.getConsoleSender().sendMessage(versionUtil.getUpdateMessage())
+            Bukkit.getConsoleSender().sendMessage(versionUtil.getUpdateMessage()!!)
         }
-
-        Bukkit.getConsoleSender().sendMessage("%lang_test%".translate())
 
         // 9. Expose API service
         MomentumAPI.internalSet(CoreMomentumService(sessionManager))
@@ -120,11 +121,11 @@ class Main : JavaPlugin() {
             return false
         }
 
-        vaultv = server.pluginManager.getPlugin("Vault").description.version
+        vaultv = server.pluginManager.getPlugin("Vault")!!.description.version
 
         val rsp = server.servicesManager.getRegistration(Economy::class.java) ?: return false
         economy = rsp.provider
-        return economy != null
+        return (economy as Economy).isEnabled
     }
 
     fun startUpLog(): List<String> {
@@ -133,7 +134,12 @@ class Main : JavaPlugin() {
             if (it.length > boxWidth - 4) it.take(boxWidth - 2) else it
         }
 
-        val redisInfo = "Redis ${if (configLoader.redisSsl) "(SSL Enabled)" else ""}"
+        val redisInfo = if (configLoader.redisEnabled) {
+            "Redis ${if (configLoader.redisSsl) "(SSL Enabled)" else ""}"
+        } else {
+            "NONE"
+        }
+
         val crossServerSync = if (configLoader.redisEnabled) "ENABLED" else "DISABLED"
         val rewardsCount = configLoader.tierCount
         val placeholdersCount = if (server.pluginManager.getPlugin("PlaceholderAPI") != null) 2 else 0
